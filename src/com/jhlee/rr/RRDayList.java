@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class RRDayList extends ListActivity {
@@ -35,6 +38,14 @@ public class RRDayList extends ListActivity {
 				new int[] { R.id.Count, R.id.Date, R.id.Total });
 		this.setListAdapter(adapter);
 	}
-	
 
+	/** Day list item is clicked */
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		
+		/** I just launch one day receipt list activity */
+		Intent i = new Intent(this, RROneDayReceiptList.class);
+		this.startActivity(i);
+	}
 }
