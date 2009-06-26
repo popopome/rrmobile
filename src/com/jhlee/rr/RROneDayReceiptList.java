@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class RROneDayReceiptList extends ListActivity {
@@ -39,6 +42,14 @@ public class RROneDayReceiptList extends ListActivity {
 				new int[] { R.id.Count, R.id.Date, R.id.Total });
 		this.setListAdapter(adapter);
 	}
-	
 
+	/** Receipt is clicked.
+	 * 	Go to editor view.
+	 */
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Intent i = new Intent(this, RREditor.class);
+		this.startActivity(i);
+	}
 }

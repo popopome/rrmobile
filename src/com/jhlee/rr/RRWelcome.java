@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class RRWelcome extends ListActivity {
@@ -28,5 +31,24 @@ public class RRWelcome extends ListActivity {
 				R.layout.rr_welcome_item, new String[] { "itemType" },
 				new int[] { R.id.RRWelcomeItem });
 		this.setListAdapter(itemAdapter);
+	}
+
+	/** Item is clicked */
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Intent i = null;
+		switch(position) {
+		case 0:
+			/** Move to take shot activity */
+			i = new Intent(this, RRTakeShot.class);
+			this.startActivity(i);
+			break;
+		case 1:
+			/** See receipt list */
+			i = new Intent(this, RRDayList.class);
+			this.startActivity(i);
+			break;
+		}
 	}
 }

@@ -15,12 +15,12 @@ public final class R {
         public static final int sample_captured_receipt=0x7f020001;
     }
     public static final class id {
-        public static final int Button01=0x7f05000f;
         public static final int ButtonCancel=0x7f050005;
         public static final int ButtonNext=0x7f05000d;
         public static final int ButtonOk=0x7f050004;
         public static final int ButtonPrev=0x7f05000c;
         public static final int ButtonTakeOtherReceipt=0x7f050003;
+        public static final int ButtonTakeShot=0x7f05000f;
         public static final int CapturedImageView=0x7f050001;
         public static final int Count=0x7f050006;
         public static final int Date=0x7f050007;
