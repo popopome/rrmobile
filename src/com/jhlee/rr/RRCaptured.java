@@ -2,7 +2,10 @@ package com.jhlee.rr;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -13,16 +16,39 @@ import android.widget.ImageView;
  *
  */
 public class RRCaptured extends Activity {
-
+	
+	private static final String TAG = "RRCaptured";
+	private String	mCapturedFile;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.rr_captured);
 		
-		// Load sample image to view
-		ImageView imgView = (ImageView)this.findViewById(R.id.CapturedImageView);
-		imgView.setImageResource(R.drawable.sample_captured_receipt);
+		Intent i = getIntent();
+		Bundle b = i.getExtras();
+		if(b != null) {
+			mCapturedFile = b.getString("PARAM_IMAGE_FILE");
+			if(mCapturedFile.length() == 0) {
+				/** Invalid parameter */
+				Log.e(TAG, "invalid image file path is passed");				
+			}
+		}		
+		if(mCapturedFile.length() == 0) {
+			this.finish();
+			return;
+		}
 		
+		Bitmap bmp = BitmapFactory.decodeFile(mCapturedFile);
+		if(null == bmp) {
+			Log.e(TAG, "Unable to load image:" + mCapturedFile);
+			this.finish();
+			return;
+		}
+		
+		/** Load image to view */
+		ImageView imgView = (ImageView)this.findViewById(R.id.CapturedImageView);
+		imgView.setImageBitmap(bmp);
 		
 		final RRCaptured self = this;
 		

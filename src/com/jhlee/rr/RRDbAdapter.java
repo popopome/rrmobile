@@ -1,18 +1,26 @@
 package com.jhlee.rr;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.format.Time;
 import android.util.Log;
 
 public class RRDbAdapter {
-
+	
+	private static final String KEY_RECEIPT_IMG_FILE = "img_file";
+	private static final String KEY_RECEIPT_TAKEN_DATE = "taken_date";
+	
 	private static final String DB_NAME = "RRDB";
 	private static final int DB_VERSION = 1;
+	private static final String TABLE_RECEIPT = "receipt";
+	private static final String TABLE_MARKER = "marker";
 	private static final String RECEIPT_TABLE_CREATE_SQL = "CREATE TABLE receipt("
 			+ " rid INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ " img_file TEXT NOT NULL,"
-			+ " taken_date DATE NOT NULL,"
+			+ " taken_date TEXT NOT NULL,"
 			+ " geo_coding TEXT, " + " total INTEGER," + " sync_id INTEGER);";
 	private static final String MARKER_TABLE_CREATE_SQL = "CREATE TABLE marker("
 			+ " marker_id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -25,11 +33,29 @@ public class RRDbAdapter {
 			+ " height INTEGER);";
 	private static final String TAG = "RRDbAdapter";
 	private SQLiteDatabase mDb;
-	private DbHelper	mDbHelper;
+	private DbHelper mDbHelper;
 
 	/** CTOR */
 	public RRDbAdapter(Context ctx) {
 		mDbHelper = new DbHelper(ctx, mDb);
+	}
+
+	/** Insert receipt to database */
+	public long insertReceipt(String imagePath, Time takenTime) {
+		ContentValues val = new ContentValues();
+		val.put(KEY_RECEIPT_IMG_FILE, imagePath);
+		val.put(KEY_RECEIPT_TAKEN_DATE, takenTime.toString());
+		return mDb.insert(TABLE_RECEIPT, null, val);
+	}
+	
+	/** Query receipt by daily */
+	public Cursor queryReceiptByDaily() {
+		return mDb.query(TABLE_RECEIPT, 
+				new String[] { KEY_RECEIPT_IMG_FILE, KEY_RECEIPT_TAKEN_DATE }, 
+				null, 
+				null, 
+				KEY_RECEIPT_TAKEN_DATE, null, 
+				KEY_RECEIPT_TAKEN_DATE);
 	}
 
 	/**
