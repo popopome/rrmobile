@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,11 +30,15 @@ public class RRCaptured extends Activity {
 	private static final String TAG = "RRCaptured";
 	private static final String RECEIPT_SAVING_FOLDER_NAME = "receipts";
 	private String mCapturedFile;
+	private RRDbAdapter	mDbAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.rr_captured);
+		
+		/** Initialize db adapter */
+		mDbAdapter = new RRDbAdapter(this);
 
 		/** Get passed file path from bundle */
 		Intent i = getIntent();
@@ -92,7 +97,10 @@ public class RRCaptured extends Activity {
 		Button.OnClickListener btnOkListener = new Button.OnClickListener() {
 			public void onClick(View v) {
 				/** Save captured receipt to db */
-				self.saveCapturedReceiptToDb(self.mCapturedFile);
+				if(true == self.saveCapturedReceiptToDb(self.mCapturedFile)) {
+					self.showSaveSuccessMessageAndFinishActivity();
+					return;
+				}
 				self.finish();
 			}
 		};
@@ -118,6 +126,14 @@ public class RRCaptured extends Activity {
 		String newFilePath = generateNewReceiptImagePath();
 		if(false == copyFile(capturedFile, newFilePath)) {
 			Log.e(TAG, "unable to copy image file:" + capturedFile);
+			return false;
+		}
+		
+		/** Add a row */
+		long rowId = mDbAdapter.insertReceipt(newFilePath);
+		if(rowId == -1) {
+			Log.e(TAG, "Unable to save receipt image data to db");			
+			new File(newFilePath).delete();
 			return false;
 		}
 		
@@ -186,6 +202,23 @@ public class RRCaptured extends Activity {
 		
 		Log.d(TAG, "Succeeded copying file");
 		return true;
+	}
+	
+	private void showSaveSuccessMessageAndFinishActivity() {
+		final Activity self = this;
+		
+		/** Show message box */
+		Dialog dlg = new AlertDialog.Builder(this)
+		.setIcon(R.drawable.alert_dialog_icon)
+		.setTitle(R.string.db_insertion_success_dialog_title)
+		.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int whichButton) {
+		        /* User clicked OK so do some stuff */
+		    	self.finish();
+		    }
+		})		
+		.create();
+		dlg.show();
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.jhlee.rr;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -32,20 +35,27 @@ public class RRDbAdapter {
 			+ " width INTEGER, "
 			+ " height INTEGER);";
 	private static final String TAG = "RRDbAdapter";
-	private SQLiteDatabase mDb;
 	private DbHelper mDbHelper;
+	private SQLiteDatabase mDb;
 
 	/** CTOR */
 	public RRDbAdapter(Context ctx) {
-		mDbHelper = new DbHelper(ctx, mDb);
+		mDbHelper = new DbHelper(ctx);
+		mDb = mDbHelper.getWritableDatabase();
+		
 	}
 
 	/** Insert receipt to database */
-	public long insertReceipt(String imagePath, Time takenTime) {
-		ContentValues val = new ContentValues();
-		val.put(KEY_RECEIPT_IMG_FILE, imagePath);
-		val.put(KEY_RECEIPT_TAKEN_DATE, takenTime.toString());
-		return mDb.insert(TABLE_RECEIPT, null, val);
+	public long insertReceipt(String imagePath) {
+		ContentValues vals = new ContentValues();
+		vals.put(KEY_RECEIPT_IMG_FILE, imagePath);
+		
+		/** Format current date/time */
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:s");
+		String takenDateStr = formatter.format(new Date());
+		vals.put(KEY_RECEIPT_TAKEN_DATE, takenDateStr);
+		
+		return mDb.insert(TABLE_RECEIPT, null, vals);
 	}
 	
 	/** Query receipt by daily */
@@ -64,11 +74,8 @@ public class RRDbAdapter {
 	 * @author jhlee
 	 */
 	private static class DbHelper extends SQLiteOpenHelper {
-		private SQLiteDatabase mDb;
-
-		public DbHelper(Context ctx, SQLiteDatabase db) {
+		public DbHelper(Context ctx) {
 			super(ctx, DB_NAME, null, DB_VERSION);
-			mDb = db;
 		}
 
 		@Override
@@ -77,8 +84,8 @@ public class RRDbAdapter {
 			 * Later sync feature is finalized, we'll update it. final String
 			 * SYNC_TABLE_CREATE_SQL = "";
 			 */
-			mDb.execSQL(RECEIPT_TABLE_CREATE_SQL);
-			mDb.execSQL(MARKER_TABLE_CREATE_SQL);
+			db.execSQL(RECEIPT_TABLE_CREATE_SQL);
+			db.execSQL(MARKER_TABLE_CREATE_SQL);
 		}
 
 		@Override
@@ -86,8 +93,8 @@ public class RRDbAdapter {
 			/** Drop table first */
 			Log.v(TAG, "Upgrading database from version " + oldVersion + " to "
 					+ newVersion);
-			mDb.execSQL("DROP TABLE IF EXISTS receipt");
-			mDb.execSQL("DROP TABLE IF EXISTS marker");
+			db.execSQL("DROP TABLE IF EXISTS receipt");
+			db.execSQL("DROP TABLE IF EXISTS marker");
 		}
 	}
 }
