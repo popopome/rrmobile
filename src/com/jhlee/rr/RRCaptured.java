@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -123,14 +125,22 @@ public class RRCaptured extends Activity {
 		
 		/** Prepare image file */
 		prepareSavingDirectoryIfNotExists();
-		String newFilePath = generateNewReceiptImagePath();
+		String newFilePath = generateUniqueReceiptImagePath("");
 		if(false == copyFile(capturedFile, newFilePath)) {
 			Log.e(TAG, "unable to copy image file:" + capturedFile);
 			return false;
 		}
 		
+		/** Create small image file */
+		String newSmallImageFilePath = createSmallReceiptImage(newFilePath);
+		if(newSmallImageFilePath.length() == 0) {
+			Log.e(TAG, "Unable to create small image file:" + newFilePath);
+			new File(newFilePath).delete();
+			return false;
+		}
+		
 		/** Add a row */
-		long rowId = mDbAdapter.insertReceipt(newFilePath);
+		long rowId = mDbAdapter.insertReceipt(newFilePath, newSmallImageFilePath);
 		if(rowId == -1) {
 			Log.e(TAG, "Unable to save receipt image data to db");			
 			new File(newFilePath).delete();
@@ -157,26 +167,15 @@ public class RRCaptured extends Activity {
 	}
 	
 	/** Generate file path */
-	private String generateNewReceiptImagePath() {
+	private String generateUniqueReceiptImagePath(String prefix) {
 		File receiptDir = this.getFileStreamPath(RECEIPT_SAVING_FOLDER_NAME);		
 		String absPath = receiptDir.getAbsolutePath();
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-");
-		String dateString = formatter.format(new Date());
-		File f = null;
-		for(int i=0;;++i) {
-			String filePath = dateString + i;
-			f = new File(absPath + "/" + filePath + ".jpg");
-			/*f = this.getFileStreamPath(absPath + "/" + filePath + ".jpg");*/
-			if(false == f.exists()) {
-				break;				
-			}
-		}
-		if(f != null)
-			return f.getAbsolutePath();
+		String dateString = RRUtil.getTodayDateString();
+		String uuidString = UUID.randomUUID().toString();
 		
-		Log.e(TAG, "Unable to generate receipt file path");
-		return "";
+		File f = new File(absPath + "/" + prefix + dateString + "-" + uuidString + ".jpg");
+		return f.getAbsolutePath();
 	}
 
 	/** Copy file */
@@ -220,5 +219,58 @@ public class RRCaptured extends Activity {
 		.create();
 		dlg.show();
 	}
+	
+	/**
+	 * Create small receipt image
+	 * @param imageFilePath	Original receipt image file path
+	 * @return
+	 */
+	private String createSmallReceiptImage(String imageFilePath) {		
+		Bitmap bmp = BitmapFactory.decodeFile(imageFilePath);
+		if(null == bmp) {
+			Log.e(TAG, "Unable to load bitmap from file:" + imageFilePath);
+			return "";
+		}
+		
+		int w = bmp.getWidth();
+		int h = bmp.getHeight();
+		
+		/** Small image width/height:
+		 *  120
+		 */
+		int smallW = 120;
+		int smallH = 120;
+		if(w > h) {
+			/** w:120 = h:? 
+			 *  w*? = 120*h
+			 *  ? = 120*h/w
+			 */
+			smallH = 120 * h/w;
+		} else {
+			smallW = 120 * w/h;
+		}
+		
+		Bitmap smallBmp = Bitmap.createScaledBitmap(bmp, smallW, smallH, true);
+		if(null == smallBmp) {
+			Log.e(TAG, "Unable to create scaled bitmap");
+			return "";
+		}
+		
+		/** Save small image */
+		String smallImagePath = generateUniqueReceiptImagePath("small-");
+		
+		try {
+			FileOutputStream ostm = new FileOutputStream(smallImagePath);
+			smallBmp.compress(CompressFormat.JPEG, 85, ostm);
+			ostm.flush();
+			ostm.close();
+		} catch(Exception e) {
+			Log.e(TAG, "Unable to save small image bitmap to file:smallImagePath=" + smallImagePath);
+			return "";
+		}	
+		
+		return smallImagePath;
+	}
+	
 
 }
