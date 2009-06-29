@@ -15,6 +15,7 @@ import android.widget.SimpleCursorAdapter;
 public class RRDayList extends ListActivity {
 
 	private RRDbAdapter mDbAdapter;
+	private Cursor mCursor;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,14 +27,14 @@ public class RRDayList extends ListActivity {
 		 * COUNT/TOTAL/DATE.
 		 */
 		mDbAdapter = new RRDbAdapter(this);
-		Cursor c = mDbAdapter.queryReceiptByDaily();
-		this.startManagingCursor(c);
+		mCursor = mDbAdapter.queryReceiptByDaily();
+		this.startManagingCursor(mCursor);
 
 		String[] from = { "CNT", "TOTAL_EXPENSE",
 				RRDbAdapter.KEY_RECEIPT_TAKEN_DATE };
 		int[] to = { R.id.Count, R.id.Total, R.id.Date };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-				R.layout.rr_day_list_item, c, from, to);
+				R.layout.rr_day_list_item, mCursor, from, to);
 		this.setListAdapter(adapter);
 	}
 
@@ -41,9 +42,16 @@ public class RRDayList extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-
+		
+		/** As you know id has no meaning at here.
+		 *  We just want position.
+		 */
+		mCursor.moveToPosition(position);
+		String takenDate = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+		
 		/** I just launch one day receipt list activity */
 		Intent i = new Intent(this, RRReceiptList.class);
+		i.putExtra("TAKEN_DATE", takenDate);
 		this.startActivity(i);
 	}
 }

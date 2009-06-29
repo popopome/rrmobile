@@ -20,11 +20,11 @@ public class RRDbAdapter {
 	public static final String KEY_RECEIPT_TOTAL = "total";
 
 	private static final String DB_NAME = "RRDB";
-	private static final int DB_VERSION = 4;
+	private static final int DB_VERSION = 5;
 	private static final String TABLE_RECEIPT = "receipt";
 	private static final String TABLE_MARKER = "marker";
 	private static final String RECEIPT_TABLE_CREATE_SQL = "CREATE TABLE receipt("
-			+ " rid INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ " _id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ " img_file TEXT NOT NULL,"
 			+ " small_img_file TEXT NOT NULL,"
 			+ " taken_date TEXT NOT NULL,"
@@ -72,7 +72,7 @@ public class RRDbAdapter {
 	/** Query receipt by daily */
 	public Cursor queryReceiptByDaily() {
 		Cursor c = mDb.query(TABLE_RECEIPT, new String[] {
-				"rid as _id",
+				"_id",
 				"COUNT(*) AS CNT",
 				"SUM(TOTAL) AS TOTAL_EXPENSE",
 				KEY_RECEIPT_IMG_FILE,
@@ -81,6 +81,15 @@ public class RRDbAdapter {
 		if(c != null)
 			c.moveToFirst();
 		return c;
+	}
+	
+	/** Query all receipts
+	 * 
+	 * @return Cursor
+	 */
+	public Cursor queryAllReceipts() {
+		return mDb.query(TABLE_RECEIPT, null, null, null, null, null, 
+				KEY_RECEIPT_TAKEN_DATE + "," + KEY_RECEIPT_TAKEN_TIME );
 	}
 
 	/**
