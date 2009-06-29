@@ -41,8 +41,8 @@ public final class R {
         public static final int rr_day_list=0x7f030002;
         public static final int rr_day_list_item=0x7f030003;
         public static final int rr_editor=0x7f030004;
-        public static final int rr_one_day_receipt_list=0x7f030005;
-        public static final int rr_one_day_receipt_list_item=0x7f030006;
+        public static final int rr_receipt_list=0x7f030005;
+        public static final int rr_receipt_list_item=0x7f030006;
         public static final int rr_takeshot=0x7f030007;
         public static final int rr_welcome=0x7f030008;
         public static final int rr_welcome_item=0x7f030009;

@@ -13,12 +13,14 @@ import android.util.Log;
 
 public class RRDbAdapter {
 
-	private static final String KEY_RECEIPT_IMG_FILE = "img_file";
-	private static final String KEY_RECEIPT_SMALL_IMG_FILE = "small_img_file";
-	private static final String KEY_RECEIPT_TAKEN_DATE = "taken_date";
+	public static final String KEY_RECEIPT_IMG_FILE = "img_file";
+	public static final String KEY_RECEIPT_SMALL_IMG_FILE = "small_img_file";
+	public static final String KEY_RECEIPT_TAKEN_DATE = "taken_date";
+	public static final String KEY_RECEIPT_TAKEN_TIME = "taken_time";
+	public static final String KEY_RECEIPT_TOTAL = "total";
 
 	private static final String DB_NAME = "RRDB";
-	private static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 4;
 	private static final String TABLE_RECEIPT = "receipt";
 	private static final String TABLE_MARKER = "marker";
 	private static final String RECEIPT_TABLE_CREATE_SQL = "CREATE TABLE receipt("
@@ -26,8 +28,9 @@ public class RRDbAdapter {
 			+ " img_file TEXT NOT NULL,"
 			+ " small_img_file TEXT NOT NULL,"
 			+ " taken_date TEXT NOT NULL,"
+			+ " taken_time TEXT NOT NULL,"
 			+ " geo_coding TEXT, "
-			+ " total INTEGER," + " sync_id INTEGER);";
+			+ " total INTEGER NOT NULL," + " sync_id INTEGER);";
 	private static final String MARKER_TABLE_CREATE_SQL = "CREATE TABLE marker("
 			+ " marker_id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ " rid INTEGER NOT NULL, "
@@ -55,18 +58,29 @@ public class RRDbAdapter {
 		vals.put(KEY_RECEIPT_SMALL_IMG_FILE, smallImagePath);
 
 		/** Format current date/time */
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:s");
-		String takenDateStr = formatter.format(new Date());
-		vals.put(KEY_RECEIPT_TAKEN_DATE, takenDateStr);
+		vals.put(KEY_RECEIPT_TAKEN_DATE, RRUtil.getTodayDateString());
+		vals.put(KEY_RECEIPT_TAKEN_TIME, RRUtil.getCurrentTimeString());
+		
+		/** Set total money as zero.
+		 *  0 means N/A.
+		 */
+		vals.put(KEY_RECEIPT_TOTAL, 0);
 
 		return mDb.insert(TABLE_RECEIPT, null, vals);
 	}
 
 	/** Query receipt by daily */
 	public Cursor queryReceiptByDaily() {
-		return mDb.query(TABLE_RECEIPT, new String[] { KEY_RECEIPT_IMG_FILE,
+		Cursor c = mDb.query(TABLE_RECEIPT, new String[] {
+				"rid as _id",
+				"COUNT(*) AS CNT",
+				"SUM(TOTAL) AS TOTAL_EXPENSE",
+				KEY_RECEIPT_IMG_FILE,
 				KEY_RECEIPT_TAKEN_DATE }, null, null, KEY_RECEIPT_TAKEN_DATE,
 				null, KEY_RECEIPT_TAKEN_DATE);
+		if(c != null)
+			c.moveToFirst();
+		return c;
 	}
 
 	/**
@@ -96,6 +110,8 @@ public class RRDbAdapter {
 					+ newVersion);
 			db.execSQL("DROP TABLE IF EXISTS receipt");
 			db.execSQL("DROP TABLE IF EXISTS marker");
+			
+			this.onCreate(db);
 		}
 	}
 }
