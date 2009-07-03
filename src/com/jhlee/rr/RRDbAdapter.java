@@ -83,6 +83,20 @@ public class RRDbAdapter {
 		return c;
 	}
 	
+	/**
+	 * Query receipt information
+	 * @param rid	Receipt id
+	 * @return
+	 */
+	public Cursor queryReceipt(int rid) {
+		Cursor c = mDb.query(TABLE_RECEIPT, null, "_id=" + rid, 
+					null, null, null, null);
+		if(c != null) 
+			c.moveToFirst();
+		
+		return c;
+	}
+	
 	/** Query all receipts
 	 * 
 	 * @return Cursor
