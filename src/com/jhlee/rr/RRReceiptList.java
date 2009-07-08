@@ -29,6 +29,7 @@ public class RRReceiptList extends ListActivity {
 		mCursor = mAdapter.queryAllReceipts();
 		this.startManagingCursor(mCursor);
 
+		
 		String[] from = { RRDbAdapter.KEY_RECEIPT_TAKEN_DATE,
 				RRDbAdapter.KEY_RECEIPT_TAKEN_TIME,
 				RRDbAdapter.KEY_RECEIPT_TOTAL };
