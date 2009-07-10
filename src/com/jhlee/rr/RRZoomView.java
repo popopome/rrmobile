@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -49,6 +50,16 @@ public class RRZoomView extends View {
 	/** CTOR */
 	public RRZoomView(Context ctx) {
 		super(ctx);
+		initializePanAndZoomAnimationTask();
+		initializeZoomAnimationTask();
+	}
+	public RRZoomView(Context ctx, AttributeSet attrs) {
+		super(ctx, attrs);
+		initializePanAndZoomAnimationTask();
+		initializeZoomAnimationTask();
+	}
+	public RRZoomView(Context ctx, AttributeSet attrs, int defStyle) {
+		super(ctx, attrs, defStyle);
 		initializePanAndZoomAnimationTask();
 		initializeZoomAnimationTask();
 	}
