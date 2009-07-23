@@ -10,11 +10,13 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class RRMoneyPad extends View {
 
+	private static final String TAG = "RRMoneyPad"; 
 	private static final int COL_COUNT = 3;
 	private static final int ROW_COUNT = 4;
 	private static final int MAX_BUTTON_INDEX = (COL_COUNT * ROW_COUNT) - 1;
@@ -36,7 +38,7 @@ public class RRMoneyPad extends View {
 	private int mHittedBtnIndex = -1;
 	
 	private int mValue = 0;
-	private int mScale = 0;
+	private int mScale = -1;
 
 	/** CTOR */
 	public RRMoneyPad(Context ctx) {
@@ -204,8 +206,37 @@ public class RRMoneyPad extends View {
 		case 8:
 			mValue *= 10;
 			mValue += btnIndex + 1;
+			if(mScale != -1) {
+				if(mScale == 0)
+					mScale = 1;
+				else
+					mScale *= 10;
+			}
+			break;
+			/* . is pressed */
+		case 9:
+			if(mScale == -1)
+				mScale = 0;
+			else 
+				mScale *= 10;
+			break;
+		case 10:
+			mValue *= 10;
+			if(mScale != -1)
+				mScale *= 10;
+			break;
+		case 11:
+			mValue /= 10;
+			if(mScale != -1)
+				mScale /= 10;
 			break;
 		}
+		
+		Log.v(TAG, "mValue: " + mValue + " mScale: " + mScale);
 	}
 
+	private void clearData() {
+		mValue = 0;
+		mScale = -1;
+	}
 }
