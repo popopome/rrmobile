@@ -1,4 +1,4 @@
-package com.jaeho.funui;
+package com.jhlee.zoomsample;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,8 +13,14 @@ import android.view.View;
 
 public class RRMoneyView extends View {
 
-	private static final int	DEFAULT_TEXT_SIZE_IN_160_DPI	=	30;
-	
+	private static final int DEFAULT_TEXT_SIZE_IN_160_DPI = 30;
+	private static DisplayMetrics mDm = null;
+
+	public static void initializeDisplayMetrics(DisplayMetrics dm) {
+		mDm = dm;
+	}
+
+	private int mTextSize = DEFAULT_TEXT_SIZE_IN_160_DPI;
 	private Typeface mFont;
 	private Paint mPaint;
 	private int mDollars;
@@ -25,19 +31,19 @@ public class RRMoneyView extends View {
 	/** CTOR */
 	public RRMoneyView(Context ctx) {
 		super(ctx);
-		initializePaint(null);
+		initializeResources(null);
 		initializeData();
 	}
 
 	public RRMoneyView(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs);
-		initializePaint(attrs);
+		initializeResources(attrs);
 		initializeData();
 	}
 
 	public RRMoneyView(Context ctx, AttributeSet attrs, int defStyle) {
 		super(ctx, attrs, defStyle);
-		initializePaint(attrs);
+		initializeResources(attrs);
 		initializeData();
 	}
 
@@ -45,8 +51,10 @@ public class RRMoneyView extends View {
 		setMoney(0, 0);
 	}
 
-	/** Initialize paint object */
-	private void initializePaint(AttributeSet attrs) {
+	/**
+	 * Initialize various resource objects
+	 */
+	private void initializeResources(AttributeSet attrs) {
 		mPaint = new Paint();
 		mPaint.setAntiAlias(true);
 		mPaint.setDither(true);
@@ -60,17 +68,14 @@ public class RRMoneyView extends View {
 		mPaint.setTypeface(mFont);
 
 		/** Determine text size with DPI value */
-		int textSizeWith160Dpi = DEFAULT_TEXT_SIZE_IN_160_DPI;
 		if (null != attrs) {
-			textSizeWith160Dpi = attrs.getAttributeIntValue(null, "text_size_in_160dpi",
-					textSizeWith160Dpi);
+			mTextSize = attrs.getAttributeIntValue(null, "text_size_in_160dpi",
+					DEFAULT_TEXT_SIZE_IN_160_DPI);
 		}
 
-		DisplayMetrics dm = new DisplayMetrics();
-		((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);
-		int testSizeInPixel = (int) (dm.scaledDensity * textSizeWith160Dpi);
-		mPaint.setTextSize(testSizeInPixel);
-		dm = null;
+		int textSize = (int) (mDm.density * mTextSize);
+		mPaint.setTextSize(textSize);
+
 	}
 
 	/**
@@ -80,16 +85,21 @@ public class RRMoneyView extends View {
 	protected void onDraw(Canvas canvas) {
 		int w = this.getWidth();
 		int h = this.getHeight();
+
+		int horzPadding = (int) mDm.density * 10;
 		
 		int boundsWidth = mBoundsRect.width();
 		int boundsHeight = mBoundsRect.height();
 		int sy = (h - boundsHeight) >> 1;
-		int sx = (w - boundsWidth)>>1;
+		int sx = (w - boundsWidth) - horzPadding;
 
-		canvas.drawText(mMoneyString, sx, sy + boundsHeight, mPaint);
 		
+		
+		canvas.drawText(mMoneyString, sx, sy + boundsHeight, mPaint);
+
 		/** For debugging */
-		canvas.drawLine(sx, sy+boundsHeight, sx+boundsWidth, sy+boundsHeight, mPaint);
+		canvas.drawLine(sx, sy + boundsHeight, sx + boundsWidth, sy
+				+ boundsHeight, mPaint);
 	}
 
 	/** Update money string from dollar & cents */
@@ -118,15 +128,15 @@ public class RRMoneyView extends View {
 		/**
 		 * Horizontal padding: 10 dpi Vertical padding: 10 dpi
 		 */
-		DisplayMetrics dm = new DisplayMetrics();
-		((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);
+		int horzPadding = (int) mDm.density * 10;
+		int vertPadding = (int) mDm.density * 10;
+		int minimumW = mBoundsRect.width() + horzPadding + horzPadding;
+		int minimumH = mBoundsRect.height() + vertPadding + vertPadding;
+		this.setMinimumWidth(minimumW);
+		this.setMinimumHeight(minimumH);
 		
-		int horzPadding = (int) dm.density * 10;
-		int vertPadding = (int) dm.density * 10;
-		dm = null;
-
-		this.setMeasuredDimension(mBoundsRect.width() + horzPadding
-						+ horzPadding, mBoundsRect.height() + vertPadding
-						+ vertPadding);
+		
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		this.setMeasuredDimension(this.getMeasuredWidth(), minimumH);
 	}
 }

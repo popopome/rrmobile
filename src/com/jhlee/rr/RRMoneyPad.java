@@ -38,7 +38,7 @@ public class RRMoneyPad extends View {
 	private int mHittedBtnIndex = -1;
 	
 	private int mValue = 0;
-	private int mScale = -1;
+	private int mScale = 0;
 
 	/** CTOR */
 	public RRMoneyPad(Context ctx) {
@@ -206,29 +206,22 @@ public class RRMoneyPad extends View {
 		case 8:
 			mValue *= 10;
 			mValue += btnIndex + 1;
-			if(mScale != -1) {
-				if(mScale == 0)
-					mScale = 1;
-				else
-					mScale *= 10;
-			}
+			mScale *= 10;
 			break;
 			/* . is pressed */
 		case 9:
-			if(mScale == -1)
-				mScale = 0;
-			else 
-				mScale *= 10;
+			if(mScale == 0)
+				mScale = 1;
 			break;
+			/* 0 key is pressed */
 		case 10:
 			mValue *= 10;
-			if(mScale != -1)
-				mScale *= 10;
+			mScale *= 10;
 			break;
+			/* Back is pressed */
 		case 11:
 			mValue /= 10;
-			if(mScale != -1)
-				mScale /= 10;
+			mScale /= 10;
 			break;
 		}
 		
