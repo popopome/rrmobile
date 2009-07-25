@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:id="@+id/LinearLayout01"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical"
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
 	<com.jhlee.zoomsample.RRMoneyView
 		android:id="@+id/moneyview" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" 
-		text_size_in_160dpi="60">
+		android:layout_height="wrap_content" text_size_in_160dpi="60">
 	</com.jhlee.zoomsample.RRMoneyView>
 	<com.jhlee.zoomsample.RRMoneyPad
 		android:id="@+id/moneypad" android:layout_width="fill_parent"
 		android:layout_height="fill_parent">
 	</com.jhlee.zoomsample.RRMoneyPad>
-	<LinearLayout android:id="@+id/buttons_layout"
-		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:orientation="horizontal">
-		<Button android:id="@+id/okbtn" android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:text="Ok"></Button>
-		<Button android:id="@+id/cancelbtn" android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:text="Cancel"></Button>
-	</LinearLayout>
-
 </LinearLayout>

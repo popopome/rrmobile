@@ -25,6 +25,7 @@ public class RRMoneyView extends View {
 	private Paint mPaint;
 	private int mDollars;
 	private int mCents;
+	private boolean mUseDotOnly = false;
 	private String mMoneyString;
 	private Rect mBoundsRect = new Rect();
 
@@ -32,23 +33,26 @@ public class RRMoneyView extends View {
 	public RRMoneyView(Context ctx) {
 		super(ctx);
 		initializeResources(null);
-		initializeData();
+		initializeTotalMoney();
 	}
 
 	public RRMoneyView(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs);
 		initializeResources(attrs);
-		initializeData();
+		initializeTotalMoney();
 	}
 
 	public RRMoneyView(Context ctx, AttributeSet attrs, int defStyle) {
 		super(ctx, attrs, defStyle);
 		initializeResources(attrs);
-		initializeData();
+		initializeTotalMoney();
 	}
 
-	private void initializeData() {
-		setMoney(0, 0);
+	/**
+	 * Initialize total money
+	 */
+	private void initializeTotalMoney() {
+		setTotalMoney(0, -1, false);
 	}
 
 	/**
@@ -87,14 +91,12 @@ public class RRMoneyView extends View {
 		int h = this.getHeight();
 
 		int horzPadding = (int) mDm.density * 10;
-		
+
 		int boundsWidth = mBoundsRect.width();
 		int boundsHeight = mBoundsRect.height();
 		int sy = (h - boundsHeight) >> 1;
 		int sx = (w - boundsWidth) - horzPadding;
 
-		
-		
 		canvas.drawText(mMoneyString, sx, sy + boundsHeight, mPaint);
 
 		/** For debugging */
@@ -102,17 +104,36 @@ public class RRMoneyView extends View {
 				+ boundsHeight, mPaint);
 	}
 
-	/** Update money string from dollar & cents */
+	/** 
+	 * Update money string from dollar & cents 
+	 */
 	private void updateMoneyString() {
-		mMoneyString = "$" + Integer.toString(mDollars) + "."
-				+ Integer.toString(mCents);
+		mMoneyString = "$" + Integer.toString(mDollars);
+
+		boolean dotExists = false;
+		if (mUseDotOnly) {
+			mMoneyString = mMoneyString + ".";
+			dotExists = true;
+		}
+		if(mCents >= 0) {
+			if(false == dotExists) {
+				mMoneyString = mMoneyString + ".";
+			}
+			mMoneyString = mMoneyString + Integer.toString(mCents);
+		}
 	}
 
-	/** Set money */
-	public void setMoney(int dollars, int cents) {
+	/**
+	 * Set total money
+	 * @param dollars		Dollars
+	 * @param cents			Cents. if the value is less than 0, we do not use cent
+	 * @param useDotOnly	Only dollar and dot is used. Cents is not used.
+	 */
+	public void setTotalMoney(int dollars, int cents, boolean useDotOnly) {
 		mDollars = dollars;
 		mCents = cents;
-
+		mUseDotOnly = useDotOnly;
+		
 		updateMoneyString();
 
 		/** Update bounds rectangle */
@@ -134,8 +155,7 @@ public class RRMoneyView extends View {
 		int minimumH = mBoundsRect.height() + vertPadding + vertPadding;
 		this.setMinimumWidth(minimumW);
 		this.setMinimumHeight(minimumH);
-		
-		
+
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		this.setMeasuredDimension(this.getMeasuredWidth(), minimumH);
 	}
