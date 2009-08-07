@@ -1,4 +1,4 @@
-package com.jhlee.zoomsample;
+package com.jhlee.rr;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -66,7 +66,6 @@ public class RRZoomView extends View {
 	
 	private void initializeZoomAnimationTask() {
 		mZoomAniTask = new Runnable() {
-			@Override
 			public void run() {
 				float cur = getCurrentZoomRatio();
 				if(mDoubleTapZoomIn) {
@@ -103,7 +102,6 @@ public class RRZoomView extends View {
 	}
 	private void initializePanAndZoomAnimationTask() {
 		mPanAndZoomAniTask = new Runnable() {
-			@Override
 			public void run() {
 				boolean result1 = alignStep();
 				boolean result2 = zoomStep();

@@ -1,4 +1,4 @@
-package com.jhlee.zoomsample;
+package com.jhlee.rr;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -184,7 +184,7 @@ public class RRZoomButtonView extends View {
 
 		if (null == mFlyButtonTask) {
 			mFlyButtonTask = new Runnable() {
-				@Override
+				
 				public void run() {
 					mFlyButton_Pixels = (mFlyButton_Pixels * 850) >> 10;
 					if (mFlyButton_PlusButton) {
@@ -232,7 +232,6 @@ public class RRZoomButtonView extends View {
 		if (null == mButtonFadeInTask) {
 			mButtonFadeInTask = new Runnable() {
 
-				@Override
 				public void run() {
 					/** Alpha is drecreased at 33/128 ratio */
 					int alpha = mPaint.getAlpha() + ((255 * 33) >> 7);

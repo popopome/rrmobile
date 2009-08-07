@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.jhlee.rr"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+ 
+        <activity android:name=".RRHomeScreenActivity"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+             
+        <activity android:name=".RRTakeShot"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.RRTakeShot" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>                
+        <activity android:name=".RRCaptured"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.RRCaptured" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!--         
+        <activity android:name=".RRDayList"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.RRDayList" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RRReceiptList"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.RROneDayReceiptList" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RREditor"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.RREditor" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".RRCarouselReceiptList"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        -->
+</application>
+    <uses-sdk android:minSdkVersion="3" />
+</manifest> 
