@@ -3,6 +3,10 @@ package com.jhlee.rr;
 import java.io.IOException;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -16,6 +20,16 @@ import android.view.SurfaceView;
  */
 public class RRCameraPreview extends SurfaceView implements
 		SurfaceHolder.Callback {
+	
+	/**
+	 * Callback for picture is taken.
+	 * @author Administrator
+	 *
+	 */
+	public interface OnPictureTakenListener {
+		public void pictureTaken(Bitmap bmp);
+	}
+	
 	private SurfaceHolder mHolder;
 	private Camera mCamera;
 
@@ -46,6 +60,8 @@ public class RRCameraPreview extends SurfaceView implements
 		mHolder = this.getHolder();
 		mHolder.addCallback(this);
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		
+
 	}
 
 	/**
@@ -55,6 +71,10 @@ public class RRCameraPreview extends SurfaceView implements
 		mCamera = Camera.open();
 		try {
 			mCamera.setPreviewDisplay(holder);
+			
+			Camera.Parameters params = mCamera.getParameters();
+			params.setPictureFormat(PixelFormat.JPEG);
+			mCamera.setParameters(params);
 		} catch (IOException e) {
 			mCamera.release();
 			mCamera = null;
@@ -81,12 +101,21 @@ public class RRCameraPreview extends SurfaceView implements
 		mCamera.stopPreview();
 		mCamera = null;
 	}
-	
+
 	/**
 	 * Take a picture from camera
 	 */
-	public void takeShot() {
+	public void takePicture(OnPictureTakenListener listener) {
+		final OnPictureTakenListener listenerFinal = listener;
+		Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
+			/* We expect data is jpeg byte stream. */
+			public void onPictureTaken(byte[] data, Camera camera) {
+				Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+				listenerFinal.pictureTaken(bmp);
+			}
+		};
 		
+		mCamera.takePicture(null, null, pictureCallback);
 	}
 
 }

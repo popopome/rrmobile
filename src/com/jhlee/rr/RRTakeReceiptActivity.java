@@ -13,9 +13,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 
-public class RRTakeReceiptActivity extends Activity {
+public class RRTakeReceiptActivity extends Activity implements RRCameraPreview.OnPictureTakenListener {
 	
 	private static final String TAG = "RRTakeShot";
 
@@ -23,31 +24,18 @@ public class RRTakeReceiptActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		/* Hide the window title */
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
+		/* Full screen */
+		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.setContentView(R.layout.rr_takeshot);
-
+		
+		/* Get preview object */
+		final RRCameraPreview preview = (RRCameraPreview)findViewById(R.id.rr_cam_preview);
+		
 		/** Register button click callback function */
 		final RRTakeReceiptActivity self = this;
 		Button.OnClickListener btnClickListener = new Button.OnClickListener() {
 			public void onClick(View arg0) {
-				/** Capture image from camera.
-				 *  Mock up code just returns temporary file path
-				 */
-				String capturedFile = self.captureIt();
-				if (capturedFile.length() == 0) {
-					return;
-				}
-
-				/** Go to RRCaptured activity.
-				 *  Pass captured file name.
-				 */
-				Intent i = new Intent(self, RRCaptured.class);
-				i.putExtra("PARAM_IMAGE_FILE", capturedFile);
-				
-				self.startActivity(i);
-				self.finish();
+				preview.takePicture(self);
 			}
 		};
 		Button btnTakeShot = (Button) this.findViewById(R.id.ButtonTakeShot);
@@ -58,14 +46,12 @@ public class RRTakeReceiptActivity extends Activity {
 		return "__test__";
 	}
 
+	
 	/**
-	 * Capture image from camera
-	 * @return
+	 * Picture is taken
 	 */
-	private String captureIt() {
+	public void pictureTaken(Bitmap bmp) {
 		Log.d(TAG, "Capture image from camera");
-		Bitmap bmp = BitmapFactory.decodeResource(getResources(),
-				R.drawable.sample_captured_receipt);
 		final String TEMP_FILE_NAME = "temp_capture_image.jpg";
 		boolean saveResult = false;
 		String absPath = "";
@@ -79,14 +65,24 @@ public class RRTakeReceiptActivity extends Activity {
 			absPath = f.getPath();
 		} catch(Exception e) {			
 			Log.e(TAG, "Unable to save temporary image: " + e.toString());
-			return "";
+			return;
 		}
 		
 		if(saveResult == false) {
 			Log.e(TAG, "unable to save image to file");
-			return "";
+			return;
 		}
 		
-		return absPath;
+		
+		/** Go to RRCaptured activity.
+		 *  Pass captured file name.
+		 */
+		Intent i = new Intent(this, RRCaptured.class);
+		i.putExtra("PARAM_IMAGE_FILE", absPath);
+		
+		this.startActivity(i);
+		this.finish();
+		
 	}
+
 }

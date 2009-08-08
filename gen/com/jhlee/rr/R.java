@@ -25,15 +25,15 @@ public final class R {
         public static final int ButtonOk=0x7f050006;
         public static final int ButtonPrev=0x7f050012;
         public static final int ButtonTakeOtherReceipt=0x7f050005;
-        public static final int ButtonTakeShot=0x7f050017;
+        public static final int ButtonTakeShot=0x7f050018;
         public static final int CapturedImageView=0x7f050004;
         public static final int Count=0x7f050009;
         public static final int Date=0x7f05000a;
         public static final int LinearLayout01=0x7f050000;
         public static final int RRCaptured=0x7f050003;
         public static final int RRTakeShot=0x7f050016;
-        public static final int RRWelcome=0x7f050018;
-        public static final int RRWelcomeItem=0x7f050019;
+        public static final int RRWelcome=0x7f050019;
+        public static final int RRWelcomeItem=0x7f05001a;
         public static final int ReceiptView=0x7f05000d;
         public static final int RelativeLayout01=0x7f05000c;
         public static final int TakenDate=0x7f050014;
@@ -44,6 +44,7 @@ public final class R {
         public static final int carouselView=0x7f050008;
         public static final int moneypad=0x7f050002;
         public static final int moneyview=0x7f050001;
+        public static final int rr_cam_preview=0x7f050017;
         public static final int rr_homescreen=0x7f050010;
         public static final int rr_topiclist=0x7f050011;
     }
