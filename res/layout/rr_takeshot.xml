@@ -2,6 +2,13 @@
 <RelativeLayout android:id="@+id/RRTakeShot"
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android">
+	<com.jhlee.rr.RRCameraPreview
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+		>
+	</com.jhlee.rr.RRCameraPreview>
 	<Button android:text="@string/take_shot" android:id="@+id/ButtonTakeShot"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
