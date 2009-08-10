@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:background="@drawable/solid_white"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+	<com.jhlee.rr.RRZoomView android:id="@+id/rr_zoomview"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:layout_alignParentLeft="true" android:layout_alignParentTop="true">
+	</com.jhlee.rr.RRZoomView>
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:orientation="horizontal"
+		android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
+		android:baselineAligned="true" android:background="@drawable/semitransparent_bg">
+		<com.jhlee.rr.RRDateTextView android:id="@+id/rr_date"
+			android:layout_width="wrap_content" android:layout_height="fill_parent"
+			android:layout_weight="1"
+			>
+		</com.jhlee.rr.RRDateTextView>
+		<com.jhlee.rr.RRMoneyTextView android:id="@+id/rr_money_text_view"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1"
+			>
+		</com.jhlee.rr.RRMoneyTextView>
+	</LinearLayout>
+</RelativeLayout>
+
+
