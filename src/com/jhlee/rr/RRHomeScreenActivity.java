@@ -24,12 +24,12 @@ public class RRHomeScreenActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.rr_homescreen);
 		
-		R2TopicListView v = (R2TopicListView)findViewById(R.id.rr_topiclist);
+		RRTopicListView v = (RRTopicListView)findViewById(R.id.rr_topiclist);
         v.addTopic(0, "Take a Receipt", Color.WHITE, Color.BLACK, -1);
         v.addTopic(1, "View Receipts", Color.WHITE, Color.BLACK, -1);
         
         
-        v.setItemClickListener(new R2TopicListView.OnItemClickListener() {
+        v.setItemClickListener(new RRTopicListView.OnItemClickListener() {
 			public void onItemClicked(View view, long itemIndex) {
 				Intent i = null;
 				Context ctx = view.getContext();
@@ -41,16 +41,11 @@ public class RRHomeScreenActivity extends Activity {
 					break;
 				case 1:
 					/** See receipt list */
-					i = new Intent(ctx, RRDayList.class);
+					i = new Intent(ctx, RRReceiptListActivity.class);
 					ctx.startActivity(i);
 					break;
 				}
 			}
-        	
         });
-
 	}
-
-	
-
 }

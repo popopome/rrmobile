@@ -20,7 +20,7 @@ public class RRDbAdapter {
 	public static final String KEY_RECEIPT_TOTAL = "total";
 
 	private static final String DB_NAME = "RRDB";
-	private static final int DB_VERSION = 5;
+	private static final int DB_VERSION = 6;
 	private static final String TABLE_RECEIPT = "receipt";
 	private static final String TABLE_MARKER = "marker";
 	private static final String RECEIPT_TABLE_CREATE_SQL = "CREATE TABLE receipt("
@@ -104,6 +104,19 @@ public class RRDbAdapter {
 	public Cursor queryAllReceipts() {
 		return mDb.query(TABLE_RECEIPT, null, null, null, null, null, 
 				KEY_RECEIPT_TAKEN_DATE + "," + KEY_RECEIPT_TAKEN_TIME );
+	}
+	
+	/**
+	 * Update total money
+	 * @param rid
+	 * @param dollars
+	 * @param cents
+	 */
+	public void updateTotalMoney(int rid, int dollars, int cents) {
+		int encoded = dollars * 100 + cents;
+		ContentValues vals = new ContentValues();
+		vals.put(KEY_RECEIPT_TOTAL, encoded);
+		mDb.update(TABLE_RECEIPT, vals, "_id="+Integer.toString(rid), null);
 	}
 
 	/**

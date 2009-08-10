@@ -17,36 +17,42 @@ public final class R {
         public static final int numpad_button=0x7f020003;
         public static final int numpad_sel=0x7f020004;
         public static final int sample_captured_receipt=0x7f020005;
+        public static final int semitransparent_bg=0x7f020008;
+        public static final int solid_white=0x7f020007;
         public static final int zoom_button_icon=0x7f020006;
     }
     public static final class id {
         public static final int ButtonCancel=0x7f050007;
-        public static final int ButtonNext=0x7f050013;
+        public static final int ButtonNext=0x7f050017;
         public static final int ButtonOk=0x7f050006;
-        public static final int ButtonPrev=0x7f050012;
+        public static final int ButtonPrev=0x7f050016;
         public static final int ButtonTakeOtherReceipt=0x7f050005;
-        public static final int ButtonTakeShot=0x7f050018;
+        public static final int ButtonTakeShot=0x7f05001c;
         public static final int CapturedImageView=0x7f050004;
-        public static final int Count=0x7f050009;
-        public static final int Date=0x7f05000a;
+        public static final int Count=0x7f05000a;
+        public static final int Date=0x7f05000b;
         public static final int LinearLayout01=0x7f050000;
         public static final int RRCaptured=0x7f050003;
-        public static final int RRTakeShot=0x7f050016;
-        public static final int RRWelcome=0x7f050019;
-        public static final int RRWelcomeItem=0x7f05001a;
-        public static final int ReceiptView=0x7f05000d;
-        public static final int RelativeLayout01=0x7f05000c;
-        public static final int TakenDate=0x7f050014;
-        public static final int TakenTime=0x7f050015;
-        public static final int TextView01=0x7f05000f;
-        public static final int Total=0x7f05000b;
-        public static final int ZoomControls01=0x7f05000e;
-        public static final int carouselView=0x7f050008;
+        public static final int RRTakeShot=0x7f05001a;
+        public static final int RRWelcome=0x7f05001d;
+        public static final int RRWelcomeItem=0x7f05001e;
+        public static final int ReceiptView=0x7f05000e;
+        public static final int RelativeLayout01=0x7f05000d;
+        public static final int TakenDate=0x7f050018;
+        public static final int TakenTime=0x7f050019;
+        public static final int TextView01=0x7f050010;
+        public static final int Total=0x7f05000c;
+        public static final int ZoomControls01=0x7f05000f;
+        public static final int button_rotate=0x7f050008;
+        public static final int carouselView=0x7f050009;
         public static final int moneypad=0x7f050002;
         public static final int moneyview=0x7f050001;
-        public static final int rr_cam_preview=0x7f050017;
-        public static final int rr_homescreen=0x7f050010;
-        public static final int rr_topiclist=0x7f050011;
+        public static final int rr_cam_preview=0x7f05001b;
+        public static final int rr_date=0x7f050014;
+        public static final int rr_homescreen=0x7f050011;
+        public static final int rr_money_text_view=0x7f050015;
+        public static final int rr_topiclist=0x7f050012;
+        public static final int rr_zoomview=0x7f050013;
     }
     public static final class layout {
         public static final int main=0x7f030000;
@@ -57,11 +63,12 @@ public final class R {
         public static final int rr_day_list_item=0x7f030005;
         public static final int rr_editor=0x7f030006;
         public static final int rr_homescreen=0x7f030007;
-        public static final int rr_receipt_list=0x7f030008;
-        public static final int rr_receipt_list_item=0x7f030009;
-        public static final int rr_takeshot=0x7f03000a;
-        public static final int rr_welcome=0x7f03000b;
-        public static final int rr_welcome_item=0x7f03000c;
+        public static final int rr_receipt_detail=0x7f030008;
+        public static final int rr_receipt_list=0x7f030009;
+        public static final int rr_receipt_list_item=0x7f03000a;
+        public static final int rr_takeshot=0x7f03000b;
+        public static final int rr_welcome=0x7f03000c;
+        public static final int rr_welcome_item=0x7f03000d;
     }
     public static final class string {
         public static final int app_name=0x7f040001;
@@ -72,6 +79,7 @@ public final class R {
         public static final int next=0x7f040007;
         public static final int ok=0x7f040004;
         public static final int prev=0x7f040006;
+        public static final int rotate=0x7f04000a;
         public static final int take_other_receipt=0x7f040003;
         public static final int take_shot=0x7f040002;
     }

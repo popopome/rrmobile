@@ -41,6 +41,8 @@ public class RRCarouselFlowView extends View {
 		public int h;
 
 		public int color;
+		/* Image file name */
+		public String img_file_name;
 	}
 
 	/**
@@ -459,5 +461,13 @@ public class RRCarouselFlowView extends View {
 				foundItem = item;
 		}
 		return foundItem;
+	}
+
+	/**
+	 * Set custom drawer
+	 * @param customDrawer
+	 */
+	public void setCarouselItemCustomDrawer(RRCarouselItemCustomDrawer customDrawer) {
+		mCustomDrawer = customDrawer;
 	}
 }

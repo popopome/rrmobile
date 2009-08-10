@@ -20,6 +20,10 @@
 			android:layout_height="wrap_content" android:id="@+id/ButtonCancel"
 			android:layout_width="fill_parent" android:text="@string/cancel"
 			android:layout_weight="1"></Button>
+		<Button 
+			android:layout_height="wrap_content" android:id="@+id/button_rotate"
+			android:layout_width="fill_parent" android:text="@string/rotate"
+			android:layout_weight="1"></Button>
 
 	</LinearLayout>
 </RelativeLayout>

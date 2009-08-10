@@ -72,8 +72,10 @@ public class RRCameraPreview extends SurfaceView implements
 		try {
 			mCamera.setPreviewDisplay(holder);
 			
+			/* 800x600 photo */
 			Camera.Parameters params = mCamera.getParameters();
-			params.setPictureFormat(PixelFormat.JPEG);
+			params.setPictureFormat(PixelFormat.RGB_565);
+			params.setPictureSize(800, 600);
 			mCamera.setParameters(params);
 		} catch (IOException e) {
 			mCamera.release();
