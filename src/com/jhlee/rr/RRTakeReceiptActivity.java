@@ -24,10 +24,20 @@ import android.widget.Toast;
 public class RRTakeReceiptActivity extends Activity implements RRCameraPreview.OnPictureTakenListener {
 	
 	private static final String TAG = "RRTakeShot";
+	
+	private RRImageStorageManager	mImgStg = new RRImageStorageManager();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		/* Check whether storage is available or not */
+		if(false == mImgStg.open(this)) {
+			Log.e(TAG, "unable to open image storage");
+			Toast.makeText(this, "Please insert sd card first", Toast.LENGTH_LONG).show();
+			this.finish();
+			return;
+		}
 		
 		/* Screen orientation to landscape */
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -63,15 +73,9 @@ public class RRTakeReceiptActivity extends Activity implements RRCameraPreview.O
 		Bitmap bmp = Bitmap.createBitmap(capturedBmp, 0, 0, capturedBmp.getWidth(),
 				capturedBmp.getHeight(), m, false);
 		
-		String storageState = Environment.getExternalStorageState();
-		if(false == storageState.contains("mounted")) {
-			Toast.makeText(this, "Please insert SD card", Toast.LENGTH_LONG).show();
-			return;
-		}
-		
+		/* Check storage card availability */
 		final String TEMP_FILE_NAME = "temp_capture_image.jpg";
-		File storage = Environment.getExternalStorageDirectory();
-		File outputFile = new File(storage, TEMP_FILE_NAME);
+		File outputFile = new File(mImgStg.getBasePath(), TEMP_FILE_NAME);
 		
 		
 		boolean saveResult = false;

@@ -2,4 +2,5 @@
 <resources>
     <drawable name="solid_white">#ffffffff</drawable>
     <drawable name="semitransparent_bg">#7f666666</drawable>
+    <drawable name="clr_transparent">#00ffffff</drawable>
 </resources>

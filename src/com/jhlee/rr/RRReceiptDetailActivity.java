@@ -102,6 +102,8 @@ public class RRReceiptDetailActivity extends Activity {
 								int cents = moneyDlg.getCents();
 								moneyView.setTotalMoney(dollars, cents, false);
 								moneyView.invalidate();
+								/* Change view size cause content is changed */
+								moneyView.requestLayout();
 
 								/* Save data to db */
 								mDbAdapter.updateTotalMoney(mRID, dollars, cents);
@@ -110,6 +112,13 @@ public class RRReceiptDetailActivity extends Activity {
 				dlg.show();
 			}
 		});
+		
+		
+		/* Request layout again.
+		 * Expect view size is changed with proper content
+		 */
+		View rootView = this.findViewById(R.id.receipt_detail_layout);
+		rootView.requestLayout();
 	}
 
 	private void showErrorMessage(String msg) {

@@ -12,4 +12,5 @@
 	<string name="db_insertion_success_dialog_title">Insertion succeeded</string>
 	<string name="error">Error</string>
 	<string name="rotate">Rotate</string>
+	<string name="daily">Daily</string>
 </resources>

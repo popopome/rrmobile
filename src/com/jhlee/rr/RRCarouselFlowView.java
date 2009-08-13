@@ -385,7 +385,8 @@ public class RRCarouselFlowView extends View {
 			item.virtual_x = item.seq * mItemWidth;
 		}
 
-		this.moveCameraRel(activeItem.x);
+		if(activeItem != null)
+			this.moveCameraRel(activeItem.x);
 	}
 
 	/**
@@ -426,8 +427,10 @@ public class RRCarouselFlowView extends View {
 				item = getActiveItem();
 			}
 
-			animationTo(item.seq * mItemWidth);
-			invalidate();
+			if(null != item) {
+				animationTo(item.seq * mItemWidth);
+				invalidate();
+			}
 			break;
 		}
 		return true;
@@ -439,6 +442,9 @@ public class RRCarouselFlowView extends View {
 	 * @return
 	 */
 	private RRCarouselItem getActiveItem() {
+		if(mSortedItems.isEmpty())
+			return null;
+		
 		return mSortedItems.get(mSortedItems.size() - 1);
 	}
 

@@ -14,7 +14,7 @@ import android.view.View.OnClickListener;
 
 public class RRTextView extends View {
 
-	private static final int DEFAULT_TEXT_SIZE_IN_160_DPI = 25;
+	private static final int DEFAULT_TEXT_SIZE_IN_160_DPI = 18;
 	private int mTextSize = DEFAULT_TEXT_SIZE_IN_160_DPI;
 	private Typeface mFont;
 	private Paint mPaint;
@@ -144,7 +144,8 @@ public class RRTextView extends View {
 
 		
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		this.setMeasuredDimension(this.getMeasuredWidth(), minimumH);
+		/*this.setMeasuredDimension(this.getMeasuredWidth(), minimumH);*/
+		this.setMeasuredDimension(minimumW, minimumH);
 	}
 
 	/**

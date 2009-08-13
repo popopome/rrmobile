@@ -3,8 +3,6 @@ package com.jhlee.rr;
 import java.util.HashMap;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,6 +12,8 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.jhlee.rr.RRCarouselFlowView.RRCarouselActiveItemClickListener;
 import com.jhlee.rr.RRCarouselFlowView.RRCarouselItem;
@@ -33,14 +33,35 @@ public class RRReceiptListActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.rr_carousel_receipt_list);
 
+		final RRReceiptListActivity self = (RRReceiptListActivity)this;
+		
+		/* Install back button */
+		Button backButton = (Button) this.findViewById(R.id.back_button);
+		backButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				/* Finish activity */
+				self.finish();
+			}
+		});
+
 		/* Collect receipt data from database */
 		mAdapter = new RRDbAdapter(this);
 		if (mCursor != null) {
 			mCursor.close();
 		}
 		mCursor = mAdapter.queryAllReceipts();
-		int numOfReceipts = mCursor.getCount();
 		this.startManagingCursor(mCursor);
+		int numOfReceipts = mCursor.getCount();
+		if (numOfReceipts < 1) {
+			/*
+			 * No data is in there. Just finisth the activity.
+			 */
+			Toast.makeText(this,
+					"No receipt data. Please take a receipt first.",
+					Toast.LENGTH_LONG).show();
+			this.finish();
+			return;
+		}
 
 		/* Initialize carousel view */
 		RRCarouselFlowView view = (RRCarouselFlowView) findViewById(R.id.carouselView);
@@ -57,14 +78,13 @@ public class RRReceiptListActivity extends Activity implements
 		super.onDestroy();
 	}
 
-	
 	/**
 	 * Custome draw for CAROUSL item
 	 */
 	public void onDraw(View view, Canvas canvas, RRCarouselItem item) {
-		
-		/* If image file name was not fetched from DB,
-		 * get it.
+
+		/*
+		 * If image file name was not fetched from DB, get it.
 		 */
 		if (item.img_file_name == null) {
 			mCursor.moveToFirst();
@@ -90,13 +110,14 @@ public class RRReceiptListActivity extends Activity implements
 		int drawingH = item.h * 2 / 3;
 		zoomToFit(x, y, item.w, drawingH, bmp, mMatrixZoomToFit);
 		canvas.drawBitmap(bmp, mMatrixZoomToFit, null);
-		
+
 		/* Draw reflection image */
 		float[] matValues = new float[9];
 		mMatrixZoomToFit.getValues(matValues);
 		mMatrixZoomToFit.postTranslate(-matValues[2], -matValues[5]);
 		mMatrixZoomToFit.postScale(1.0f, -1.0f);
-		mMatrixZoomToFit.postTranslate(matValues[2], matValues[5]+drawingH+drawingH);
+		mMatrixZoomToFit.postTranslate(matValues[2], matValues[5] + drawingH
+				+ drawingH);
 
 		canvas.drawBitmap(bmp, mMatrixZoomToFit, null);
 	}
@@ -120,7 +141,7 @@ public class RRReceiptListActivity extends Activity implements
 	public void onClicked(RRCarouselFlowView view, RRCarouselItem item) {
 		mCursor.moveToPosition(item.seq);
 		long rid = mCursor.getInt(0);
-		
+
 		/** See receipt list */
 		Intent i = new Intent(this, RRReceiptDetailActivity.class);
 		i.putExtra(RRReceiptDetailActivity.RECEIPT_ID, rid);
