@@ -15,16 +15,19 @@ public final class R {
         public static final int back_button=0x7f020001;
         public static final int back_button_pressed=0x7f020002;
         public static final int back_button_state=0x7f020003;
-        public static final int clr_transparent=0x7f02000d;
-        public static final int icon=0x7f020004;
-        public static final int numpad=0x7f020005;
-        public static final int numpad_button=0x7f020006;
-        public static final int numpad_sel=0x7f020007;
-        public static final int sample_captured_receipt=0x7f020008;
-        public static final int semitransparent_bg=0x7f02000c;
-        public static final int solid_white=0x7f02000b;
-        public static final int title_back=0x7f020009;
-        public static final int zoom_button_icon=0x7f02000a;
+        public static final int clr_transparent=0x7f020010;
+        public static final int day_view=0x7f020004;
+        public static final int day_view_button_state=0x7f020005;
+        public static final int day_view_pressed=0x7f020006;
+        public static final int icon=0x7f020007;
+        public static final int numpad=0x7f020008;
+        public static final int numpad_button=0x7f020009;
+        public static final int numpad_sel=0x7f02000a;
+        public static final int sample_captured_receipt=0x7f02000b;
+        public static final int semitransparent_bg=0x7f02000f;
+        public static final int solid_white=0x7f02000e;
+        public static final int title_back=0x7f02000c;
+        public static final int zoom_button_icon=0x7f02000d;
     }
     public static final class id {
         public static final int ButtonCancel=0x7f050007;

@@ -12,8 +12,8 @@
 	</com.jhlee.rr.RRZoomView>
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:background="@drawable/title_back"
-		android:padding="2px" android:layout_marginLeft="2px"
-		android:layout_marginTop="2px">
+		android:padding="2px"
+		>
 		<Button android:id="@+id/back_button" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:background="@drawable/back_button_state"
 			android:layout_alignParentLeft="true">

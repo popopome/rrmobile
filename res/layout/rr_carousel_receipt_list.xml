@@ -8,24 +8,18 @@
 		android:layout_height="fill_parent">
 	</com.jhlee.rr.RRCarouselFlowView>
 
-	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:orientation="horizontal"
-		android:background="@drawable/title_back" android:layout_marginLeft="2px"
-		android:layout_marginTop="2px" android:layout_marginRight="2px">
-
-	</LinearLayout>
-
-	<Button
-		android:id="@+id/back_button" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:background="@drawable/back_button_state"
-		android:layout_marginLeft="5px" android:layout_marginTop="4px">
-	</Button>
-	<Button android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/daily"
-		android:layout_alignParentRight="true"
-		android:layout_marginRight="5px" android:layout_marginTop="4px"></Button>
-
-
+	<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:background="@drawable/title_back"
+		android:padding="2px">
+		<Button android:id="@+id/back_button" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:background="@drawable/back_button_state"
+			android:layout_alignParentLeft="true">
+		</Button>
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:background="@drawable/day_view_button_state"
+			android:layout_alignParentRight="true"
+			></Button>
+	</RelativeLayout>
 </RelativeLayout>
 
