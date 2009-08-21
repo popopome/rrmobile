@@ -33,7 +33,7 @@ public class RRCarouselFlowView extends View {
 
 	public class RRCarouselItem {
 		public int seq;
-		/** Not scaled into view coordinate */
+		/** Not scaled into view coordinate */ 
 		public int virtual_x;
 		public double scale;
 		/** All values below are scaled into view coordinates */

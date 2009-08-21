@@ -1,5 +1,7 @@
 package com.jhlee.rr;
 
+import com.jhlee.rr.RRCarouselFlowView.RRCarouselItem;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,6 +12,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -28,9 +32,10 @@ public class RRReceiptDetailActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		/* Remove title bar */
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		/* Set content */
 		this.setContentView(R.layout.rr_receipt_detail);
-
-		
 
 		/** Get receipt id */
 		Intent i = this.getIntent();
@@ -38,7 +43,7 @@ public class RRReceiptDetailActivity extends Activity {
 			this.showErrorMessage("Intent should be given");
 			return;
 		}
-		mRID = (int)i.getExtras().getLong(RECEIPT_ID, -1);
+		mRID = (int) i.getExtras().getLong(RECEIPT_ID, -1);
 		if (mRID == -1) {
 			this.showErrorMessage("Proper rid is not given");
 			return;
@@ -46,12 +51,7 @@ public class RRReceiptDetailActivity extends Activity {
 
 		/** Get receipt information */
 		mDbAdapter = new RRDbAdapter(this);
-		mCursor = mDbAdapter.queryReceipt((int) mRID);
-		if (null == mCursor) {
-			this.showErrorMessage("Unable to get db cursor");
-			return;
-		}
-		this.startManagingCursor(mCursor);
+		refreshDbCursor();
 
 		/** Load receipt image */
 		int colIndexImgFile = mCursor
@@ -69,59 +69,120 @@ public class RRReceiptDetailActivity extends Activity {
 		zoomView.setBitmap(bmp);
 
 		/* Set up money text view */
+		refreshMoneyViewText();
+
+		/* Set date */
+		refreshDateView();
+
 		final RRReceiptDetailActivity self = this;
 
-		final RRMoneyTextView moneyView = (RRMoneyTextView) this
-				.findViewById(R.id.rr_money_text_view);
-
-		/* Set saved money amount */
-		int encodedTotal = mCursor.getInt(mCursor
-				.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TOTAL));
-		int dollars = encodedTotal / 100;
-		int cents = encodedTotal % 100;
-		moneyView.setTotalMoney(dollars, cents, false);
+		/* Initialize back button */
+		initializeBackButton(self);
+		/* Initialize money button */
+		initializeMoneyButton(self);
 		
-		/* Set date */
-		RRDateTextView dateTextView = (RRDateTextView)this.findViewById(R.id.rr_date);
-		String takenDate = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
-		dateTextView.setText(takenDate);
-
-		/* Set listener */
-		moneyView.setOnClickListener(new View.OnClickListener() {
+		
+		Button datePickBtn = (Button)findViewById(R.id.button_date_pick);
+		datePickBtn.setOnClickListener(new View.OnClickListener() {
 			/*
-			 * Money text view is clicked. We will show money input pad dialog.
+			 * Date pick button is clicked. 
+			 * Show date pick dialog & change date
 			 */
 			public void onClick(View v) {
-				RRMoneyInputDialog dlg = new RRMoneyInputDialog(self);
-				dlg.setMoney(moneyView.getDollars(), moneyView.getCents());
-				dlg
-						.setOnDismissListener(new DialogInterface.OnDismissListener() {
-							public void onDismiss(DialogInterface dialog) {
-								RRMoneyInputDialog moneyDlg = (RRMoneyInputDialog) dialog;
-								if(moneyDlg.isCanceled())
-									return;
-								
-								int dollars = moneyDlg.getDollars();
-								int cents = moneyDlg.getCents();
-								moneyView.setTotalMoney(dollars, cents, false);
-								moneyView.invalidate();
-								/* Change view size cause content is changed */
-								moneyView.requestLayout();
-
-								/* Save data to db */
-								mDbAdapter.updateTotalMoney(mRID, dollars, cents);
-							}
-						});
+				final RRCalendarSelectDialog dlg = new RRCalendarSelectDialog(self);
+				dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+					public void onDismiss(DialogInterface dialog) {
+						if(false == dlg.isDateSelected())
+							return;
+						/* Update db. */
+						mDbAdapter.updateDate(
+								mCursor,
+								dlg.getSelectedDateInMillis());
+						/* Refresh db cursor */
+						self.refreshDbCursor();
+						self.refreshDateView();
+												
+					}
+				});
+				
+				/* Get date information */
+				String dateStr = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+				dlg.setActiveDate(dateStr);
+				
+				/* Show dialog */
 				dlg.show();
 			}
 		});
-		
-		
-		/* Request layout again.
-		 * Expect view size is changed with proper content
+
+		/*
+		 * Request layout again. Expect view size is changed with proper content
 		 */
 		View rootView = this.findViewById(R.id.receipt_detail_layout);
 		rootView.requestLayout();
+	}
+
+	/**
+	 * Refresh date view
+	 */
+	private void refreshDateView() {
+		TextView dateView = (TextView) findViewById(R.id.date_view);
+		dateView.setText(mCursor.getString(mCursor
+				.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE)));
+		dateView.invalidate();
+	}
+
+	private void refreshMoneyViewText() {
+		TextView moneyView = (TextView) findViewById(R.id.money_view);
+		int total = mCursor.getInt(mCursor
+				.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TOTAL));
+		moneyView.setText(RRUtil.formatMoney(total / 100, total % 100, true));
+		moneyView.invalidate();
+	}
+
+	private void initializeMoneyButton(final RRReceiptDetailActivity self) {
+		Button moneyButton = (Button) this.findViewById(R.id.button_numpad);
+		moneyButton.setOnClickListener(new Button.OnClickListener() {
+			/* Money input button is clicked */
+			public void onClick(View v) {
+				/* Get total amount of money */
+				int packedTotal = mCursor.getInt(mCursor
+						.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TOTAL));
+
+				/* Show money input dialog */
+				final RRMoneyInputDialog inputDlg = new RRMoneyInputDialog(self);
+				inputDlg.setMoney(packedTotal / 100, packedTotal % 100);
+				inputDlg
+						.setOnDismissListener(new DialogInterface.OnDismissListener() {
+							public void onDismiss(DialogInterface dialog) {
+								/*
+								 * Money input dialog is dismissed. Let's save
+								 * if we should do
+								 */
+								if (inputDlg.isCanceled())
+									return;
+
+								/* Insert new total money to db */
+								int rid = mCursor.getInt(0);
+								mDbAdapter.updateTotalMoney(rid, inputDlg
+										.getDollars(), inputDlg.getCents());
+								/* Refresh db items */
+								self.refreshDbCursor();
+								self.refreshMoneyViewText();
+							}
+						});
+				inputDlg.show();
+			}
+		});
+	}
+
+	private void initializeBackButton(final RRReceiptDetailActivity self) {
+		Button backButton = (Button) this.findViewById(R.id.back_button);
+		backButton.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				/* Finish activity */
+				self.finish();
+			}
+		});
 	}
 
 	private void showErrorMessage(String msg) {
@@ -139,4 +200,20 @@ public class RRReceiptDetailActivity extends Activity {
 		return;
 	}
 
+	/*
+	 * Refresh db cursor
+	 */
+	private void refreshDbCursor() {
+
+		mCursor = mDbAdapter.queryReceipt((int) mRID);
+		if (null == mCursor) {
+			this.showErrorMessage("Unable to get db cursor");
+			return;
+		}
+		this.startManagingCursor(mCursor);
+	}
+	
+	
+	
+	
 }

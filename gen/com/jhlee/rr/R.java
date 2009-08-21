@@ -78,8 +78,10 @@ public final class R {
         public static final int calendar_stream_view=0x7f05000c;
         public static final int cancel_button=0x7f05000f;
         public static final int carouselView=0x7f050008;
+        public static final int date_view=0x7f05001a;
         public static final int delete_button=0x7f050005;
         public static final int money_text=0x7f050016;
+        public static final int money_view=0x7f05001b;
         public static final int moneypad=0x7f050002;
         public static final int moneyview=0x7f050001;
         public static final int move_to_today=0x7f05000d;
@@ -87,9 +89,7 @@ public final class R {
         public static final int receipt_detail_layout=0x7f050018;
         public static final int rotate_button=0x7f050007;
         public static final int rr_cam_preview=0x7f050022;
-        public static final int rr_date=0x7f05001a;
         public static final int rr_homescreen=0x7f050014;
-        public static final int rr_money_text_view=0x7f05001b;
         public static final int rr_topiclist=0x7f050015;
         public static final int rr_zoomview=0x7f050019;
         public static final int save_button=0x7f050006;
