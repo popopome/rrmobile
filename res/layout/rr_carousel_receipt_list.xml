@@ -5,21 +5,30 @@
 
 	<com.jhlee.rr.RRCarouselFlowView
 		android:id="@+id/carouselView" android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
+		android:layout_height="fill_parent"
+		android:focusable="true"
+		>
 	</com.jhlee.rr.RRCarouselFlowView>
 
-	<RelativeLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:background="@drawable/title_back"
-		android:padding="2px">
-		<Button android:id="@+id/back_button" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:background="@drawable/back_button_state"
-			android:layout_alignParentLeft="true">
-		</Button>
-		<Button android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:background="@drawable/day_view_button_state"
-			android:layout_alignParentRight="true"
-			></Button>
-	</RelativeLayout>
+	<Button android:id="@+id/back_button" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:background="@drawable/back_button_state"
+		android:layout_alignParentLeft="true">
+	</Button>
+
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:background="@drawable/day_view_button_state"
+		android:layout_alignParentRight="true"></Button>
+	<Button android:layout_width="wrap_content"
+		android:id="@+id/button_numpad"
+		android:layout_height="wrap_content" android:background="@drawable/numpad_button_state"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true"></Button>
+	<Button
+		android:id="@+id/button_date_pick" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:background="@drawable/date_change_button_state"
+		android:layout_toLeftOf="@id/button_numpad"
+		android:layout_alignParentBottom="true"></Button>
+
 </RelativeLayout>
 

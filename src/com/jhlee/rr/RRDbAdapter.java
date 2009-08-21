@@ -1,14 +1,15 @@
 package com.jhlee.rr;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.SimpleTimeZone;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.format.Time;
 import android.util.Log;
 
 public class RRDbAdapter {
@@ -116,7 +117,41 @@ public class RRDbAdapter {
 		int encoded = dollars * 100 + cents;
 		ContentValues vals = new ContentValues();
 		vals.put(KEY_RECEIPT_TOTAL, encoded);
-		mDb.update(TABLE_RECEIPT, vals, "_id="+Integer.toString(rid), null);
+		int numRows = mDb.update(TABLE_RECEIPT, vals, "_id="+Integer.toString(rid), null);
+		if(numRows != 1) {
+			Log.e(TAG, "Unable to update row:rid=" + Integer.toString(rid));
+		}
+	}
+	
+	/*
+	 * Update date
+	 */
+	public boolean updateDate(Cursor cursor, long millis) {
+		ContentValues vals = new ContentValues();
+		
+		Calendar tmpCalendar = new GregorianCalendar(new SimpleTimeZone(0, "GMT"));
+		tmpCalendar.clear();
+		tmpCalendar.setTimeInMillis(millis);
+		
+		/* Date formatting */
+		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+		formatter.setTimeZone(tmpCalendar.getTimeZone());
+		String dateStr = formatter.format(tmpCalendar.getTime());
+		
+		/* Insert date to DB */
+		vals.put(KEY_RECEIPT_TAKEN_DATE, dateStr);
+
+		/* Assume 0th index is id */
+		int rid = cursor.getInt(0);
+		
+		/* Update db */
+		int numRows = mDb.update(TABLE_RECEIPT, vals, "_id="+Integer.toString(rid), null);
+		if(numRows != 1) {
+			Log.e(TAG, "Unable to update row for date:rid=" + Integer.toString(rid));
+			return false;
+		}
+		
+		return true;
 	}
 
 	/**

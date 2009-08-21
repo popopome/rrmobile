@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/LinearLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	
+	<com.jhlee.rr.RRCalendarStreamView
+		android:id="@+id/calendar_stream_view" android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft ="true"
+		android:layout_alignParentTop ="true">
+	</com.jhlee.rr.RRCalendarStreamView>
+	<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" 
+		android:layout_alignBottom="@id/calendar_stream_view"
+		android:layout_centerHorizontal="true">
+			 
+		<Button android:id="@+id/move_to_today" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="Go to Today"
+			android:layout_alignParentLeft="true"
+			 />
+		<Button android:id="@+id/select_button" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="Select"
+			android:layout_toRightOf="@id/move_to_today"
+			/>
+		<Button android:id="@+id/cancel_button" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="Cancel"
+			android:layout_toRightOf="@id/select_button"
+			 />
+			 
+	</RelativeLayout>
+
+</RelativeLayout>

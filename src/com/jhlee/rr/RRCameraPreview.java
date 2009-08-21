@@ -9,8 +9,10 @@ import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 /**
  * Camera preview
@@ -20,6 +22,8 @@ import android.view.SurfaceView;
  */
 public class RRCameraPreview extends SurfaceView implements
 		SurfaceHolder.Callback {
+	
+	private static final String TAG = "RRCameraPreview";
 	
 	/**
 	 * Callback for picture is taken.
@@ -77,9 +81,11 @@ public class RRCameraPreview extends SurfaceView implements
 			params.setPictureFormat(PixelFormat.RGB_565);
 			params.setPictureSize(800, 600);
 			mCamera.setParameters(params);
-		} catch (IOException e) {
+		} catch(Exception e) {
+			Log.e(TAG, "Unable to prepare camera");
 			mCamera.release();
 			mCamera = null;
+			Toast.makeText(this.getContext(), "Unable to start camera", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -101,6 +107,7 @@ public class RRCameraPreview extends SurfaceView implements
 		 * important to release it when the activity is paused
 		 */
 		mCamera.stopPreview();
+		mCamera.release();
 		mCamera = null;
 	}
 

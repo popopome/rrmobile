@@ -59,6 +59,10 @@ public class RRTakeReceiptActivity extends Activity implements RRCameraPreview.O
 		};
 		Button btnTakeShot = (Button) this.findViewById(R.id.ButtonTakeShot);
 		btnTakeShot.setOnClickListener(btnClickListener);
+		
+		/* Give default focus to button */
+		btnTakeShot.requestFocus();
+
 	}
 
 	/**
@@ -77,23 +81,27 @@ public class RRTakeReceiptActivity extends Activity implements RRCameraPreview.O
 		final String TEMP_FILE_NAME = "temp_capture_image.jpg";
 		File outputFile = new File(mImgStg.getBasePath(), TEMP_FILE_NAME);
 		
-		
 		boolean saveResult = false;
 		String absPath = "";
 		try {
 			/* Create new file */
-			outputFile.createNewFile();
+			/* outputFile.createNewFile();*/
+			/*FileOutputStream stm = new FileOutputStream(outputFile.getAbsolutePath());*/
 			
-			FileOutputStream stm = new FileOutputStream(outputFile);
+			FileOutputStream stm = this.openFileOutput(TEMP_FILE_NAME, MODE_PRIVATE);
 			saveResult = bmp.compress(CompressFormat.JPEG, 85, stm);			
 			stm.flush();
 			stm.close();
 			
 			/* Get absolute path */
 			absPath = outputFile.getAbsolutePath();
-		} catch(Exception e) {		
+		} catch(Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "Unable to save temporary image: " + e.toString());
+			/* Show error message */
+			Toast.makeText(this, "Unable to save captured file", Toast.LENGTH_SHORT).show();
+			/* Finish activity */
+			this.finish();
 			return;
 		}
 		

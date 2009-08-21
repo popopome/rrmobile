@@ -10,10 +10,15 @@
 		android:layout_alignParentTop="true"
 		>
 	</com.jhlee.rr.RRCameraPreview>
-	<Button android:text="@string/take_shot" android:id="@+id/ButtonTakeShot"
+	<Button 
+	android:id="@+id/ButtonTakeShot"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_centerHorizontal="true"
-		android:layout_marginBottom="14.5sp">
+		android:layout_alignParentRight="true"
+		android:layout_centerVertical="true"
+		android:layout_marginRight="14.5sp"
+		android:focusable="true"
+		android:background="@drawable/camera_button_state"
+		android:focusableInTouchMode="true"
+		>
 		</Button>
 </RelativeLayout>

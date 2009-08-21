@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/LinearLayout01"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical" xmlns:android="http://schemas.android.com/apk/res/android">
+	<TextView
+		android:id="@+id/money_text"
+		android:layout_width = "fill_parent"
+		android:layout_height = "wrap_content"
+		android:textSize="30.5sp"
+		android:textStyle="bold"
+		android:textColor="#ffedd400"
+		android:hint="Type money"
+		android:textColorHint="#ff777777"
+		android:layout_marginRight="14.5sp"
+		/>
+	<com.jhlee.rr.RRNumpad
+		android:id="@+id/numpad" android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+	</com.jhlee.rr.RRNumpad>
+</LinearLayout>

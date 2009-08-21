@@ -3,27 +3,22 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android">
 	<ImageView android:layout_width="fill_parent"
-		android:id="@+id/CapturedImageView"
-		android:layout_height="fill_parent"></ImageView>
+		android:layout_height="fill_parent" android:id="@+id/CapturedImageView"
+		android:focusable="false" android:focusableInTouchMode="false"></ImageView>
 	<LinearLayout android:id="@+id/LinearLayout01"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true" android:layout_marginBottom="14.5sp"
-		android:layout_centerHorizontal="true">
-		<Button 
-			android:layout_height="wrap_content" android:id="@+id/ButtonTakeOtherReceipt"
-			android:layout_width="wrap_content" android:text="@string/take_other_receipt"></Button>
-		<Button 
-			android:layout_height="wrap_content" android:id="@+id/ButtonOk"
-			android:layout_width="fill_parent" android:text="@string/ok"
-			android:layout_weight="1"></Button>
-		<Button 
-			android:layout_height="wrap_content" android:id="@+id/ButtonCancel"
-			android:layout_width="fill_parent" android:text="@string/cancel"
-			android:layout_weight="1"></Button>
-		<Button 
-			android:layout_height="wrap_content" android:id="@+id/button_rotate"
-			android:layout_width="fill_parent" android:text="@string/rotate"
-			android:layout_weight="1"></Button>
+		android:orientation="horizontal" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_alignParentBottom="true"
+		android:layout_marginBottom="14.5sp" android:layout_centerHorizontal="true">
+
+		<Button android:layout_height="wrap_content" android:id="@+id/delete_button"
+			android:layout_width="fill_parent" android:background="@drawable/delete_button_state"
+			android:focusable="true" android:layout_weight="1"></Button>
+		<Button android:layout_height="wrap_content" android:id="@+id/save_button"
+			android:layout_width="fill_parent" android:background="@drawable/save_button_state"
+			android:focusable="true" android:layout_weight="1"></Button>
+		<Button android:layout_height="wrap_content" android:id="@+id/rotate_button"
+			android:layout_width="fill_parent" android:background="@drawable/rotate_button_state"
+			android:focusable="true" android:layout_weight="1"></Button>
 
 	</LinearLayout>
 </RelativeLayout>

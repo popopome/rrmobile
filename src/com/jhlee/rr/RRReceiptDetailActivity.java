@@ -92,12 +92,15 @@ public class RRReceiptDetailActivity extends Activity {
 			 * Money text view is clicked. We will show money input pad dialog.
 			 */
 			public void onClick(View v) {
-				RRMoneyPadDialog dlg = new RRMoneyPadDialog(self);
+				RRMoneyInputDialog dlg = new RRMoneyInputDialog(self);
 				dlg.setMoney(moneyView.getDollars(), moneyView.getCents());
 				dlg
 						.setOnDismissListener(new DialogInterface.OnDismissListener() {
 							public void onDismiss(DialogInterface dialog) {
-								RRMoneyPadDialog moneyDlg = (RRMoneyPadDialog) dialog;
+								RRMoneyInputDialog moneyDlg = (RRMoneyInputDialog) dialog;
+								if(moneyDlg.isCanceled())
+									return;
+								
 								int dollars = moneyDlg.getDollars();
 								int cents = moneyDlg.getCents();
 								moneyView.setTotalMoney(dollars, cents, false);

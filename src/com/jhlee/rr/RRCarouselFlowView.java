@@ -1,8 +1,11 @@
 package com.jhlee.rr;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+
+import junit.framework.Assert;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -20,7 +23,7 @@ public class RRCarouselFlowView extends View {
 
 	public abstract interface RRCarouselItemCustomDrawer {
 		public abstract void onDraw(android.view.View view, Canvas canvas,
-				RRCarouselItem item);
+				RRCarouselItem item, boolean isItemActive);
 	}
 
 	public abstract interface RRCarouselActiveItemClickListener {
@@ -41,8 +44,6 @@ public class RRCarouselFlowView extends View {
 		public int h;
 
 		public int color;
-		/* Image file name */
-		public String img_file_name;
 	}
 
 	/**
@@ -60,7 +61,10 @@ public class RRCarouselFlowView extends View {
 		}
 	}
 
-	private static int FINGER_CLICK_THRESHOLD = 20;
+	private static final int FINGER_CLICK_THRESHOLD = 20;
+	private static final int MINIMUM_SCROLL_MOVEMENT = 15;
+	private static final int FLICK_THRESHOLD_MILLIS = 299;
+	private static final int MAXIMUM_FLICK_ITEMS = 45;
 
 	private int mItemCnt;
 	private int mItemWidth;
@@ -82,6 +86,8 @@ public class RRCarouselFlowView extends View {
 
 	private int mLastMouseX;
 	private int mMouseDownX;
+	private int mActiveSeqAtMouseDown;
+	private long mMouseDownMillis;
 
 	private RRCarouselActiveItemClickListener mActiveItemClickListener = null;
 	private RRCarouselItemCustomDrawer mCustomDrawer = null;
@@ -315,9 +321,10 @@ public class RRCarouselFlowView extends View {
 		/**
 		 * If there is custom drawer, then use it.
 		 */
+		RRCarouselItem activeItem = this.getActiveItem();
 		if (null != mCustomDrawer) {
 			for (RRCarouselItem item : mSortedItems) {
-				mCustomDrawer.onDraw(this, canvas, item);
+				mCustomDrawer.onDraw(this, canvas, item, item == activeItem);
 			}
 			return;
 		}
@@ -338,13 +345,17 @@ public class RRCarouselFlowView extends View {
 	/** Key down */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		RRCarouselItem item = this.getActiveItem();
+		if (null == item)
+			return true;
+
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_DPAD_LEFT:
-			moveCameraRel(-10);
+			this.animationTo(this.adjustItemSeq(item.seq + 1) * mItemWidth);
 			this.invalidate();
 			break;
 		case KeyEvent.KEYCODE_DPAD_RIGHT:
-			moveCameraRel(10);
+			this.animationTo(this.adjustItemSeq(item.seq - 1) * mItemWidth);
 			this.invalidate();
 			break;
 		case KeyEvent.KEYCODE_A:
@@ -385,7 +396,7 @@ public class RRCarouselFlowView extends View {
 			item.virtual_x = item.seq * mItemWidth;
 		}
 
-		if(activeItem != null)
+		if (activeItem != null)
 			this.moveCameraRel(activeItem.x);
 	}
 
@@ -399,6 +410,11 @@ public class RRCarouselFlowView extends View {
 		case MotionEvent.ACTION_DOWN:
 			mLastMouseX = curX;
 			mMouseDownX = curX;
+
+			/* Keep mouse down item */
+			mActiveSeqAtMouseDown = getActiveItem().seq;
+			/* Keep mouse down times */
+			mMouseDownMillis = Calendar.getInstance().getTimeInMillis();
 			break;
 		case MotionEvent.ACTION_MOVE:
 			int offset = mLastMouseX - curX;
@@ -408,9 +424,14 @@ public class RRCarouselFlowView extends View {
 			break;
 		case MotionEvent.ACTION_UP:
 
+			long mouseUpMillis = Calendar.getInstance().getTimeInMillis();
+
 			/** Align to current active item */
 			RRCarouselItem item = null;
-			if (Math.abs(curX - mMouseDownX) < FINGER_CLICK_THRESHOLD) {
+			int itemSeq = 0;
+			int delta = curX - mMouseDownX;
+			if (Math.abs(delta) < FINGER_CLICK_THRESHOLD) {
+				/* Clicked */
 				item = this.findUnderDevicePoint(curX);
 				if (null == item)
 					item = getActiveItem();
@@ -424,13 +445,61 @@ public class RRCarouselFlowView extends View {
 					}
 				}
 			} else {
+				/* Mouse moved over finger click range */
 				item = getActiveItem();
 			}
 
-			if(null != item) {
-				animationTo(item.seq * mItemWidth);
-				invalidate();
+			int absDelta = Math.abs(delta);
+			if (absDelta > MINIMUM_SCROLL_MOVEMENT) {
+				/* Mouse movement some amount */
+				long elapsed = mouseUpMillis - mMouseDownMillis;
+				if (elapsed > 0 && elapsed <= FLICK_THRESHOLD_MILLIS) {
+					/* User flicks the screen */
+					long speed = absDelta / elapsed;
+					itemSeq = item.seq;
+					/* 50ms */
+					int maxMouseMovement = Math.min(this.getWidth(), this
+							.getHeight());
+					/* maxMovement : MAXIMUM_FLICK_ITEMS = absDelta : ? */
+					int maxScrollItems = MAXIMUM_FLICK_ITEMS * absDelta
+							/ maxMouseMovement;
+					maxScrollItems = Math.max(1, maxScrollItems);
+
+					/* maxSpeed : maxItems = speed : ? */
+					/* Minimum 1 item is moved by flick */
+					long itemOffset = Math.max(1, MAXIMUM_FLICK_ITEMS * speed
+							/ maxScrollItems);
+					if (delta < 0)
+						itemSeq += itemOffset;
+					else
+						itemSeq -= itemOffset;
+				} else {
+					/* Just scroll by user */
+					if (item.seq == mActiveSeqAtMouseDown) {
+						/*
+						 * Actually user drags screen over finger threshold. But
+						 * still same item covers most wide area on screen. We
+						 * consider user explicitly want to scroll items.
+						 */
+						if (delta < 0) {
+							/* Drag to left */
+							itemSeq = item.seq + 1;
+						} else {
+							itemSeq = item.seq - 1;
+						}
+					} else {
+						itemSeq = item.seq;
+					}
+				}
+			} else {
+				itemSeq = item.seq;
 			}
+
+			itemSeq = Math.max(0, itemSeq);
+			itemSeq = Math.min(this.mItemCnt - 1, itemSeq);
+
+			animationTo(itemSeq * mItemWidth);
+			invalidate();
 			break;
 		}
 		return true;
@@ -441,10 +510,10 @@ public class RRCarouselFlowView extends View {
 	 * 
 	 * @return
 	 */
-	private RRCarouselItem getActiveItem() {
-		if(mSortedItems.isEmpty())
+	public RRCarouselItem getActiveItem() {
+		if (mSortedItems.isEmpty())
 			return null;
-		
+
 		return mSortedItems.get(mSortedItems.size() - 1);
 	}
 
@@ -471,9 +540,29 @@ public class RRCarouselFlowView extends View {
 
 	/**
 	 * Set custom drawer
+	 * 
 	 * @param customDrawer
 	 */
-	public void setCarouselItemCustomDrawer(RRCarouselItemCustomDrawer customDrawer) {
+	public void setCarouselItemCustomDrawer(
+			RRCarouselItemCustomDrawer customDrawer) {
 		mCustomDrawer = customDrawer;
+	}
+
+	private int adjustItemSeq(int seq) {
+		if (seq < 0)
+			return 0;
+		if (seq >= mItemCnt)
+			return mItemCnt - 1;
+		return seq;
+	}
+
+	/*
+	 * Set active tiem
+	 */
+	public void setActiveItem(int itemSeq) {
+		this.moveCamera(itemSeq * mItemWidth);
+		
+		int newSeq = mSortedItems.get(mSortedItems.size()-1).seq;
+		Assert.assertEquals(itemSeq, newSeq);
 	}
 }
