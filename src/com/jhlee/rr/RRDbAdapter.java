@@ -21,7 +21,7 @@ public class RRDbAdapter {
 	public static final String KEY_RECEIPT_TOTAL = "total";
 
 	private static final String DB_NAME = "RRDB";
-	private static final int DB_VERSION = 6;
+	private static final int DB_VERSION = 7;
 	private static final String TABLE_RECEIPT = "receipt";
 	private static final String TABLE_MARKER = "marker";
 	private static final String RECEIPT_TABLE_CREATE_SQL = "CREATE TABLE receipt("
@@ -41,6 +41,14 @@ public class RRDbAdapter {
 			+ " y INTEGER NOT NULL, "
 			+ " width INTEGER, "
 			+ " height INTEGER);";
+	private static final String PHOTO_TAGS_TABLE_CREATE_SQL = "CREATE TABLE photo_tag("
+		+ "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+		+ "tag_name TEXT NOT NULL);";
+	
+	private static final String TAG_SOURCE_TABLE_CREATE_SQL = "CREATE TABLE tag_source("
+		+ "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+		+ "tag_name TEXT NOT NULL"
+		+ ");";
 	private static final String TAG = "RRDbAdapter";
 	private DbHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -172,6 +180,8 @@ public class RRDbAdapter {
 			 */
 			db.execSQL(RECEIPT_TABLE_CREATE_SQL);
 			db.execSQL(MARKER_TABLE_CREATE_SQL);
+			db.execSQL(PHOTO_TAGS_TABLE_CREATE_SQL);
+			db.execSQL(TAG_SOURCE_TABLE_CREATE_SQL);
 		}
 
 		@Override
@@ -181,6 +191,8 @@ public class RRDbAdapter {
 					+ newVersion);
 			db.execSQL("DROP TABLE IF EXISTS receipt");
 			db.execSQL("DROP TABLE IF EXISTS marker");
+			db.execSQL("DROP TABLE IF EXISTS photo_tags");
+			db.execSQL("DROP TABLE IF EXISTS tag_source");
 			
 			this.onCreate(db);
 		}
