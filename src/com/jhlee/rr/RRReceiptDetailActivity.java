@@ -27,6 +27,8 @@ public class RRReceiptDetailActivity extends Activity {
 	private RRDbAdapter mDbAdapter;
 	private Cursor mCursor;
 	private int mRID;
+	
+	private float mZoomRatioAtDown;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,7 @@ public class RRReceiptDetailActivity extends Activity {
 		}
 
 		/* Set bitmap */
-		RRZoomView zoomView = (RRZoomView) this.findViewById(R.id.rr_zoomview);
+		final RRZoomView zoomView = (RRZoomView) this.findViewById(R.id.rr_zoomview);
 		zoomView.setBitmap(bmp);
 
 		/* Set up money text view */
@@ -80,40 +82,25 @@ public class RRReceiptDetailActivity extends Activity {
 		initializeBackButton(self);
 		/* Initialize money button */
 		initializeMoneyButton(self);
+		/* Initialize date pick button */
+		initializeDatePickButton(self);
 		
-		
-		Button datePickBtn = (Button)findViewById(R.id.button_date_pick);
-		datePickBtn.setOnClickListener(new View.OnClickListener() {
-			/*
-			 * Date pick button is clicked. 
-			 * Show date pick dialog & change date
-			 */
-			public void onClick(View v) {
-				final RRCalendarSelectDialog dlg = new RRCalendarSelectDialog(self);
-				dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
-					public void onDismiss(DialogInterface dialog) {
-						if(false == dlg.isDateSelected())
-							return;
-						/* Update db. */
-						mDbAdapter.updateDate(
-								mCursor,
-								dlg.getSelectedDateInMillis());
-						/* Refresh db cursor */
-						self.refreshDbCursor();
-						self.refreshDateView();
-												
-					}
-				});
-				
-				/* Get date information */
-				String dateStr = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
-				dlg.setActiveDate(dateStr);
-				
-				/* Show dialog */
-				dlg.show();
+		/* Connect zoom button view & zoom view */
+		final RRZoomButtonView zoomBtnView = (RRZoomButtonView)this.findViewById(R.id.rr_zoombutton_view);
+		zoomBtnView.setOnZoomButtonEventListener(new RRZoomButtonView.OnZoomButtonEventListener() {
+			public void onZoomButtonBeforeMoving(View view) {
+				mZoomRatioAtDown = zoomView.getCurrentZoomRatio();
+			}
+			public void onZoomButtonMoved(View view, boolean isPlusButton, long distance) {
+				float zoomRatioOffset = (float) (1.0 * (distance / (float)view.getHeight()));
+				zoomView.zoomTo(mZoomRatioAtDown + zoomRatioOffset);
+				zoomView.invalidate();
+			}
+			public void onZoomButtonAfterMoving(View view) {
+				zoomView.invalidate();
 			}
 		});
-
+		
 		/*
 		 * Request layout again. Expect view size is changed with proper content
 		 */
@@ -213,7 +200,39 @@ public class RRReceiptDetailActivity extends Activity {
 		this.startManagingCursor(mCursor);
 	}
 	
-	
+	private void initializeDatePickButton(final RRReceiptDetailActivity self) {
+		Button datePickBtn = (Button)findViewById(R.id.button_date_pick);
+		datePickBtn.setOnClickListener(new View.OnClickListener() {
+			/*
+			 * Date pick button is clicked. 
+			 * Show date pick dialog & change date
+			 */
+			public void onClick(View v) {
+				final RRCalendarSelectDialog dlg = new RRCalendarSelectDialog(self);
+				dlg.setOnDismissListener(new DialogInterface.OnDismissListener() {
+					public void onDismiss(DialogInterface dialog) {
+						if(false == dlg.isDateSelected())
+							return;
+						/* Update db. */
+						mDbAdapter.updateDate(
+								mCursor,
+								dlg.getSelectedDateInMillis());
+						/* Refresh db cursor */
+						self.refreshDbCursor();
+						self.refreshDateView();
+												
+					}
+				});
+				
+				/* Get date information */
+				String dateStr = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+				dlg.setActiveDate(dateStr);
+				
+				/* Show dialog */
+				dlg.show();
+			}
+		});
+	}
 	
 	
 }

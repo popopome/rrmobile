@@ -9,12 +9,106 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.util.MonthDisplayHelper;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.GestureDetector.SimpleOnGestureListener;
 
 public class RRZoomButtonView extends View {
 
 	private static final int DEFAULT_ALPHA = 64;
+
+	/*
+	 * Gesture handling class
+	 */
+	class ZoomButtonGesture extends SimpleOnGestureListener {
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2,
+				float distanceX, float distanceY) {
+			int alpha = mPaint.getAlpha() + (255 - mPaint.getAlpha()) / 3;
+			alpha = Math.min(alpha, 255);
+			mPaint.setAlpha(alpha);
+			if (alpha == 255) {
+				/** Stop fade in animation */
+				mAniHandler.removeCallbacks(mButtonFadeTask);
+			}
+
+			/* Move plus or minus button */
+			int curY = (int) e2.getY();
+			int downY = (int) e1.getY();
+
+			if (curY < downY) {
+				int offset = downY - curY;
+				mYPlus = downY - mButtonHeight - (offset * 80 / 100);
+				mYMinus = downY;
+			} else if (curY > downY) {
+				int offset = curY - downY;
+				mYMinus = downY + (offset * 80 / 100);
+				mYPlus = downY - mButtonHeight;
+			} else {
+				mYPlus = curY - mButtonHeight;
+				mYMinus = curY;
+			}
+
+			if (mButtonEventListener != null) {
+				mButtonEventListener.onZoomButtonMoved(RRZoomButtonView.this,
+						curY < downY ? true : false, downY - curY);
+			}
+
+			invalidate();
+			return true;
+		}
+
+		@Override
+		public boolean onDown(MotionEvent e) {
+
+			if (mButtonEventListener != null)
+				mButtonEventListener
+						.onZoomButtonBeforeMoving(RRZoomButtonView.this);
+
+			int curY = (int) e.getY();
+			mYPlus = curY - mButtonHeight;
+			mYMinus = curY;
+
+			/* Button fade in */
+			buttonFadeIn();
+			invalidate();
+			return true;
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) {
+			boolean isPlusButton = (e2.getY() < e1.getY());
+			int pixels = (int) (0.05f * Math.abs(velocityY));
+			/* Maximum pixels */
+			pixels = Math.min(pixels, getHeight() / 32);
+			flyButtons(isPlusButton, pixels, velocityY < 0 ? -1 : 1, (int) e1
+					.getY());
+			return true;
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			buttonFadeOut();
+			return true;
+		}
+
+	}
+
+	/**
+	 * Zoom moved button listener
+	 */
+	public interface OnZoomButtonEventListener {
+		public void onZoomButtonBeforeMoving(View view);
+
+		public void onZoomButtonMoved(View view, boolean isPlusButton, long l);
+
+		public void onZoomButtonAfterMoving(View view);
+	}
 
 	private Bitmap mButtonBmp;
 	private Paint mPaint;
@@ -23,23 +117,22 @@ public class RRZoomButtonView extends View {
 	private int mButtonWidth;
 	private int mButtonHeight;
 
-	private int mMouseDownY;
-
-	private long mMousePausedTime;
-	private long mMouseLastTime;
-	private int mMousePausedY;
-
 	private Rect mSrcRect = new Rect();
 	private Rect mDstRect = new Rect();
 
 	private Handler mAniHandler = new Handler();
 	private Runnable mFlyButtonTask = null;
-	private Runnable mButtonFadeInTask = null;
+	private Runnable mButtonFadeTask = null;
+	private boolean mButtonFadeIn = true;
 
 	private long mFlyButton_Pixels = 0;
 	private long mFlyButton_Direction = 0;
 	private long mFlyButton_CenterY = 0;
 	private boolean mFlyButton_PlusButton;
+
+	private GestureDetector mGesture = new GestureDetector(
+			new ZoomButtonGesture());
+	private OnZoomButtonEventListener mButtonEventListener = null;
 
 	/** CTOR */
 	public RRZoomButtonView(Context ctx) {
@@ -61,8 +154,8 @@ public class RRZoomButtonView extends View {
 	private void initialize(Context ctx) {
 		mButtonBmp = BitmapFactory.decodeResource(ctx.getResources(),
 				R.drawable.zoom_button_icon);
-		mButtonWidth = mButtonBmp.getWidth();
-		mButtonHeight = mButtonBmp.getHeight() / 2;
+		mButtonWidth = mButtonBmp.getWidth() / 2;
+		mButtonHeight = mButtonBmp.getHeight();
 
 		mPaint = new Paint();
 		mPaint.setAlpha(DEFAULT_ALPHA);
@@ -71,8 +164,6 @@ public class RRZoomButtonView extends View {
 	/** Draw buttons */
 	@Override
 	protected void onDraw(Canvas canvas) {
-		// super.onDraw(canvas);
-
 		/** 2 is margin */
 		int vw = getWidth();
 		int xPos = vw - mButtonWidth - 2;
@@ -82,8 +173,8 @@ public class RRZoomButtonView extends View {
 	}
 
 	private void drawMinusButton(Canvas canvas, int xPos, int yPos) {
-		mSrcRect.set(0, mButtonHeight, mButtonWidth, mButtonHeight
-				+ mButtonHeight);
+		mSrcRect.set(mButtonWidth, 0, mButtonBmp.getWidth(), mButtonBmp
+				.getHeight());
 		mDstRect.set(xPos, yPos, xPos + mButtonWidth, yPos + mButtonHeight);
 		canvas.drawBitmap(mButtonBmp, mSrcRect, mDstRect, mPaint);
 	}
@@ -105,70 +196,16 @@ public class RRZoomButtonView extends View {
 	/** Touch event */
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		int curX = (int) e.getX();
-		int curY = (int) e.getY();
+
+		if (mGesture.onTouchEvent(e))
+			return true;
 
 		switch (e.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			/* Button fade in */
-			buttonFadeIn();
-
-			mYPlus = curY - mButtonHeight;
-			mYMinus = curY;
-			mMouseDownY = curY;
-			mMousePausedY = curY;
-			mMousePausedTime = SystemClock.uptimeMillis();
-			mMouseLastTime = mMousePausedTime;
-
-			invalidate();
-			break;
-		case MotionEvent.ACTION_MOVE:
-			long curTime = SystemClock.uptimeMillis();
-			boolean isMovementPaused = (curTime - mMouseLastTime) > 123;
-			if (isMovementPaused) {
-				mMousePausedTime = curTime;
-				mMousePausedY = curY;
-			}
-			mMouseLastTime = curTime;
-
-			int alpha = mPaint.getAlpha() + (255 - mPaint.getAlpha()) / 3;
-			alpha = Math.min(alpha, 255);
-			mPaint.setAlpha(alpha);
-			if (alpha == 255) {
-				/** Stop fade in animation */
-				mAniHandler.removeCallbacks(mButtonFadeInTask);
-			}
-
-			/* Move plus button */
-			if (curY < mMouseDownY) {
-				int offset = mMouseDownY - curY;
-				mYPlus = mMouseDownY - mButtonHeight - (offset * 80 / 100);
-				mYMinus = mMouseDownY;
-			} else if (curY > mMouseDownY) {
-				int offset = curY - mMouseDownY;
-				mYMinus = mMouseDownY + (offset * 80 / 100);
-				mYPlus = mMouseDownY - mButtonHeight;
-			} else {
-				mYPlus = curY - mButtonHeight;
-				mYMinus = curY;
-			}
-			invalidate();
-			break;
 		case MotionEvent.ACTION_UP:
-			long t = Math.max(5, SystemClock.uptimeMillis() - mMousePausedTime);
-			int dy = Math.abs(curY - mMousePausedY);
-			if (dy < 20)
-				dy = 0;
-
-			/** If dy is enough big, */
-			/** speed * 20ms */
-			long pixels = Math.abs(dy * 20 / t);
-			if (pixels > getHeight() / 3)
-				pixels = getHeight() / 3;
-
-			boolean isPlusButton = (curY < mMouseDownY);
-			flyButtons(isPlusButton, pixels, curY < mMousePausedY ? -1 : 1,
-					mMouseDownY);
+			if (mButtonEventListener != null)
+				mButtonEventListener
+						.onZoomButtonAfterMoving(RRZoomButtonView.this);
+			buttonFadeOut();
 			break;
 		}
 		return true;
@@ -184,7 +221,7 @@ public class RRZoomButtonView extends View {
 
 		if (null == mFlyButtonTask) {
 			mFlyButtonTask = new Runnable() {
-				
+
 				public void run() {
 					mFlyButton_Pixels = (mFlyButton_Pixels * 850) >> 10;
 					if (mFlyButton_PlusButton) {
@@ -204,12 +241,30 @@ public class RRZoomButtonView extends View {
 					}
 
 					/** Alpha is drecreased at 33/128 ratio */
-					int alpha = mPaint.getAlpha()
-							- (((mPaint.getAlpha()) * 33) >> 7);
+					int oldAlpha = mPaint.getAlpha();
+					int alpha = oldAlpha
+							- (((oldAlpha) * 33) >> 7);
 					mPaint.setAlpha(alpha);
 
+					if (mButtonEventListener != null) {
+						if (mFlyButton_PlusButton)
+							mButtonEventListener.onZoomButtonMoved(
+									RRZoomButtonView.this,
+									mFlyButton_PlusButton, mFlyButton_CenterY
+											- mYPlus);
+						else
+							mButtonEventListener.onZoomButtonMoved(
+									RRZoomButtonView.this,
+									mFlyButton_PlusButton, mFlyButton_CenterY
+											- mYMinus);
+					}
+
 					invalidate();
-					if (alpha < 1) {
+					if (alpha == oldAlpha || alpha <= 0) {
+						mPaint.setAlpha(0);
+						if (mButtonEventListener != null)
+							mButtonEventListener
+									.onZoomButtonAfterMoving(RRZoomButtonView.this);
 						mAniHandler.removeCallbacks(this);
 						return;
 					}
@@ -220,7 +275,7 @@ public class RRZoomButtonView extends View {
 			};
 		}
 
-		mAniHandler.removeCallbacks(mButtonFadeInTask);
+		mAniHandler.removeCallbacks(mButtonFadeTask);
 		mAniHandler.removeCallbacks(mFlyButtonTask);
 		mAniHandler.post(mFlyButtonTask);
 	}
@@ -229,16 +284,28 @@ public class RRZoomButtonView extends View {
 	 * Button fade in
 	 */
 	private void buttonFadeIn() {
-		if (null == mButtonFadeInTask) {
-			mButtonFadeInTask = new Runnable() {
+		buttonFade(true);
+	}
 
+	private void buttonFadeOut() {
+		buttonFade(false);
+	}
+
+	private void buttonFade(boolean fadeIn) {
+		mButtonFadeIn = fadeIn;
+		if (null == mButtonFadeTask) {
+			mButtonFadeTask = new Runnable() {
 				public void run() {
 					/** Alpha is drecreased at 33/128 ratio */
-					int alpha = mPaint.getAlpha() + ((255 * 33) >> 7);
+					int dir = (mButtonFadeIn) ? 1 : -1;
+					int alpha = mPaint.getAlpha() + dir * (((255 * 33) >> 7));
 					alpha = Math.min(alpha, 255);
+					alpha = Math.max(alpha, 0);
 					mPaint.setAlpha(alpha);
 					invalidate();
 					if (alpha == 255)
+						return;
+					else if (alpha == 0)
 						return;
 
 					mAniHandler.postAtTime(this,
@@ -246,10 +313,9 @@ public class RRZoomButtonView extends View {
 				}
 			};
 		}
-
 		mAniHandler.removeCallbacks(mFlyButtonTask);
-		mAniHandler.removeCallbacks(mButtonFadeInTask);
-		mAniHandler.post(mButtonFadeInTask);
+		mAniHandler.removeCallbacks(mButtonFadeTask);
+		mAniHandler.post(mButtonFadeTask);
 	}
 
 	@Override
@@ -258,4 +324,11 @@ public class RRZoomButtonView extends View {
 				.getSize(heightMeasureSpec));
 	}
 
+	/*
+	 * Set event listener
+	 */
+	public void setOnZoomButtonEventListener(
+			OnZoomButtonEventListener evtListener) {
+		mButtonEventListener = evtListener;
+	}
 }

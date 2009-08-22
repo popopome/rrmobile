@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 /**
  * Zoom view
@@ -46,24 +48,33 @@ public class RRZoomView extends View {
 	
 	private Runnable mZoomAniTask = null;
 	private boolean  mDoubleTapZoomIn = false;
+	
+	private Paint mPaint = null;
 
 	/** CTOR */
 	public RRZoomView(Context ctx) {
-		super(ctx);
-		initializePanAndZoomAnimationTask();
-		initializeZoomAnimationTask();
+		this(ctx, null);
 	}
 	public RRZoomView(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs);
-		initializePanAndZoomAnimationTask();
-		initializeZoomAnimationTask();
-	}
-	public RRZoomView(Context ctx, AttributeSet attrs, int defStyle) {
-		super(ctx, attrs, defStyle);
+		initializePaint();
+
 		initializePanAndZoomAnimationTask();
 		initializeZoomAnimationTask();
 	}
 	
+	public RRZoomView(Context ctx, AttributeSet attrs, int defStyle) {
+		super(ctx, attrs, defStyle);
+		initializePaint();
+		initializePanAndZoomAnimationTask();
+		initializeZoomAnimationTask();
+	}
+	
+	private void initializePaint() {
+		mPaint = new Paint();
+		mPaint.setAntiAlias(false);
+		mPaint.setDither(false);
+	}
 	private void initializeZoomAnimationTask() {
 		mZoomAniTask = new Runnable() {
 			public void run() {
@@ -72,7 +83,7 @@ public class RRZoomView extends View {
 					float offset = (mZoomFillRatio - cur)*35/100;
 					if(offset < 0.01f) {
 						zoomTo(mZoomFillRatio);
-						alignBitmap();
+						align();
 						invalidate();
 						return;
 					}
@@ -84,7 +95,7 @@ public class RRZoomView extends View {
 					float offset = (cur - mZoomMinRatio)*35/100;
 					if(offset<0.01f) {
 						zoomToFit();
-						alignBitmap();
+						align();
 						invalidate();
 						return;
 					}
@@ -94,7 +105,7 @@ public class RRZoomView extends View {
 					
 				}
 				
-				alignBitmap();
+				align();
 				invalidate();
 				mAniHandler.postAtTime(this, SystemClock.uptimeMillis() + 50);
 			}
@@ -126,17 +137,14 @@ public class RRZoomView extends View {
 				return false;
 			}
 			private boolean alignStep() {
-				if(true == computeAlignOffset(mAlignOffset)) {
-					mAniHandler.removeCallbacks(mPanAndZoomAniTask);
-					return true;
-				}
+				computeAlignOffset(mAlignOffset);
 				
 				mAlignOffset[0] = mAlignOffset[0] * 15/100;
 				mAlignOffset[1] = mAlignOffset[1] * 15/100;
 				if((Math.abs(mAlignOffset[0])<1.0f) &&
 				   (Math.abs(mAlignOffset[1])<1.0f)) {
 					mAniHandler.removeCallbacks(mPanAndZoomAniTask);
-					alignBitmap();
+					align();
 					invalidate();
 					return true;
 				}
@@ -156,7 +164,8 @@ public class RRZoomView extends View {
 	/** Draw image */
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.drawBitmap(mBmp, mMat, null);
+		mPaint.setDither(true);
+		canvas.drawBitmap(mBmp, mMat, mPaint);
 	}
 
 	/** Touch event */
@@ -204,7 +213,7 @@ public class RRZoomView extends View {
 				} else {
 					animationToAlign();
 				}
-				alignBitmap();
+				align();
 				mMouseLastX = curX;
 				mMouseLastY = curY;
 				invalidate();
@@ -245,12 +254,11 @@ public class RRZoomView extends View {
 	/** 
 	 * Align bitmap
 	 */
-	private void alignBitmap() {
+	public void align() {
 		if(mBmp == null)
 			return;
-		if(computeAlignOffset(mAlignOffset)) {
-			mMat.postTranslate(mAlignOffset[0], mAlignOffset[1]);
-		}
+		computeAlignOffset(mAlignOffset);
+		mMat.postTranslate(mAlignOffset[0], mAlignOffset[1]);
 	}
 
 	/**
@@ -258,7 +266,7 @@ public class RRZoomView extends View {
 	 * @param offset
 	 * @return
 	 */
-	private boolean computeAlignOffset(float[] offset) {
+	private void computeAlignOffset(float[] offset) {
 		offset[0] = 0.0f;
 		offset[1] = 0.0f;
 		
@@ -293,16 +301,9 @@ public class RRZoomView extends View {
 		} else if(mBmpRectMapped.bottom<vh) {
 			offset[1] = vh - mBmpRectMapped.bottom;
 		}
-		
-		if(offset[0] != 0.0f)
-			return false;
-		if(offset[1] != 0.0f)
-			return false;
-		
-		return true;
 	}
 	
-	private float getCurrentZoomRatio() {
+	public float getCurrentZoomRatio() {
 		mMat.getValues(mRawMatElems);
 		return mRawMatElems[Matrix.MSCALE_X];
 	}
@@ -316,7 +317,8 @@ public class RRZoomView extends View {
 	 * Start animation to align
 	 */
 	private void animationToAlign() {
-		boolean isAligned =computeAlignOffset(mAlignOffset);
+		computeAlignOffset(mAlignOffset);
+		boolean isAligned = (mAlignOffset[0] == 0.0f) && (mAlignOffset[1] == 0.0f);
 		boolean isZoomLessThanMinZoom = isZoomRatioLessThanMinZoom();
 		if(isAligned && isZoomLessThanMinZoom == false) {
 			return;
@@ -349,12 +351,16 @@ public class RRZoomView extends View {
 		mMat.postTranslate((float) (getWidth() / 2), (float) (getHeight() / 2));
 	}
 
-	private void zoomRel(float ratio) {
+	public void zoomRel(float ratio) {
 		decreaseByCenterPos();
 		mMat.postScale(ratio, ratio);
 		increaseByCenterPos();
+		if(getCurrentZoomRatio() < this.mZoomMinRatio) {
+			zoomToFit();
+		}
+		align();
 	}
-	private void zoomTo(float ratio) {
+	public void zoomTo(float ratio) {
 		float relRatio = ratio/getCurrentZoomRatio();
 		zoomRel(relRatio);
 	}
