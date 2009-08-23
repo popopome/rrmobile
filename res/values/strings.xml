@@ -2,7 +2,7 @@
 
 <resources>
     <string name="hello">Hello World, RRWelcome!</string>
-    <string name="app_name">R2 - ReceiptReloaded</string>
+    <string name="app_name">Prosumer</string>
 	<string name="take_shot">Take Shot!</string>
 	<string name="take_other_receipt">Take Other Receipt</string>
 	<string name="ok">Ok</string>

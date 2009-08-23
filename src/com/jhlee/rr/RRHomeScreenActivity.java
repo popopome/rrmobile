@@ -4,12 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -60,7 +64,7 @@ public class RRHomeScreenActivity extends Activity {
 	private class TopicListAdapter extends BaseAdapter {
 
 		public int getCount() {
-			return 3;
+			return 4;
 		}
 
 		public Object getItem(int position) {
@@ -75,18 +79,13 @@ public class RRHomeScreenActivity extends Activity {
 			switch (position) {
 			case 0:
 			case 1: {
-				String infService = Context.LAYOUT_INFLATER_SERVICE;
-				LayoutInflater li;
-				li = (LayoutInflater) RRHomeScreenActivity.this
-						.getSystemService(infService);
-				View view = li.inflate(R.layout.rr_topic_item_command,
-						null, true);
+				View view = createViewFromLayout(R.layout.rr_topic_item_command);
 				TextView textView = (TextView) view.findViewById(R.id.command_title);
 				if(position == 0) {
 					textView.setText("Take an Expense");
 				}
 				else {
-					textView.setText("View all receipts");
+					textView.setText("View/edit expenses");
 				}
 				
 				textView.requestLayout();
@@ -95,9 +94,53 @@ public class RRHomeScreenActivity extends Activity {
 				/* Show day-by-day expense */
 			case 2:
 				return createDayByDayExpenseGraph();
+			case 3:
+				/* What is most expensive item */
+			{
+				View view = createViewFromLayout(R.layout.rr_chart_expense_detail);
+				Cursor cursor = mDbAdapter.queryMostExpensiveExpense();
+				if(cursor.getCount()<1) {
+					TextView textView = (TextView) createViewFromLayout(R.layout.rr_empty_data);
+					textView.setText("Most expensive item - N/A");
+					return textView;
+				}
+				cursor.moveToFirst();
+				/* Set title */
+				TextView titleView = (TextView) view.findViewById(R.id.chart_title);
+				titleView.setText("Most expensive expense:");
+				
+				/* Load expense image */
+				String path = cursor.getString(cursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_SMALL_IMG_FILE));
+				Bitmap bmp = BitmapFactory.decodeFile(path);
+				ImageView imgView = (ImageView) view.findViewById(R.id.img_view);
+				imgView.setImageBitmap(bmp);
+				
+				TextView mainInfoView = (TextView)view.findViewById(R.id.item_title);
+				String dateString = cursor.getString(cursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+				long expense = cursor.getLong(cursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TOTAL));
+				String expenseString = RRUtil.formatMoney(expense/100, expense%100, true);
+				mainInfoView.setText(dateString + "\n" + expenseString);
+				
+				TextView tagView = (TextView)view.findViewById(R.id.item_tags);
+				String tagString = mDbAdapter.queryReceiptTagsAsOneString(cursor.getInt(0));
+				tagView.setText(tagString);
+				
+				cursor.close();
+				return view;
+			}
 			}
 
 			return null;
+		}
+
+		private View createViewFromLayout(int layoutId) {
+			String infService = Context.LAYOUT_INFLATER_SERVICE;
+			LayoutInflater li;
+			li = (LayoutInflater) RRHomeScreenActivity.this
+					.getSystemService(infService);
+			View view = li.inflate(layoutId,
+					null, true);
+			return view;
 		}
 
 		
@@ -134,7 +177,36 @@ public class RRHomeScreenActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		/* Remove window title */
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.rr_homescreen);
+
+		/*
+		 * RRTopicListView v = (RRTopicListView)findViewById(R.id.topic_list);
+		 * v.addTopic(0, "Take a Receipt", Color.WHITE, Color.BLACK, -1);
+		 * v.addTopic(1, "View Receipts", Color.WHITE, Color.BLACK, -1);
+		 * 
+		 * 
+		 * v.setItemClickListener(new RRTopicListView.OnItemClickListener() {
+		 * public void onItemClicked(View view, long itemIndex) { Intent i =
+		 * null; Context ctx = view.getContext(); switch((int)itemIndex) { case
+		 * 0:
+		 *//** Move to take shot activity */
+		/*
+		 * i = new Intent(ctx, RRTakeReceiptActivity.class);
+		 * ctx.startActivity(i); break; case 1:
+		 *//** See receipt list */
+		/*
+		 * i = new Intent(ctx, RRReceiptListActivity.class);
+		 * ctx.startActivity(i); break; } } });
+		 */
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		
 		/* Initialize Db */
 		mDbAdapter = new RRDbAdapter(this);
@@ -160,25 +232,7 @@ public class RRHomeScreenActivity extends Activity {
 				}
 			}
 		});
-
-		/*
-		 * RRTopicListView v = (RRTopicListView)findViewById(R.id.topic_list);
-		 * v.addTopic(0, "Take a Receipt", Color.WHITE, Color.BLACK, -1);
-		 * v.addTopic(1, "View Receipts", Color.WHITE, Color.BLACK, -1);
-		 * 
-		 * 
-		 * v.setItemClickListener(new RRTopicListView.OnItemClickListener() {
-		 * public void onItemClicked(View view, long itemIndex) { Intent i =
-		 * null; Context ctx = view.getContext(); switch((int)itemIndex) { case
-		 * 0:
-		 *//** Move to take shot activity */
-		/*
-		 * i = new Intent(ctx, RRTakeReceiptActivity.class);
-		 * ctx.startActivity(i); break; case 1:
-		 *//** See receipt list */
-		/*
-		 * i = new Intent(ctx, RRReceiptListActivity.class);
-		 * ctx.startActivity(i); break; } } });
-		 */
 	}
+	
+	
 }

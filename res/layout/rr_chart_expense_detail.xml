@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<TextView android:id="@+id/chart_title" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:text="BarGraph"
+		android:textSize="16.0sp" android:textStyle="bold" android:textColor="#ffffffff"
+		android:shadowColor="#ff000000" android:shadowRadius="2.0"
+		android:background="@drawable/bar_chart_title_gradient"
+		android:paddingLeft="4.5sp" android:inputType="textMultiLine" />
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:minHeight="150px">
+		<ImageView android:id="@+id/img_view" android:layout_width="wrap_content"
+			android:layout_height="fill_parent" android:src="@drawable/semitransparent_bg" 
+			android:layout_marginLeft="4.5sp"
+			android:padding="0px"
+			/>
+		<LinearLayout android:orientation="vertical"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<TextView android:id="@+id/item_title" android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:inputType="textMultiLine"
+				android:textSize="16.0sp"
+				android:paddingLeft = "4.5sp" 
+				android:shadowColor="#ff000000" android:shadowRadius="2.0"
+				android:textStyle="bold" android:textColor="#ffffffff"
+				/>
+			<TextView android:id="@+id/item_tags" android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:inputType="textMultiLine" 
+				android:textSize="14.5sp"
+				android:paddingLeft = "4.5sp" 
+				android:shadowColor="#ff000000" android:shadowRadius="2.0"
+				android:textStyle="bold" android:textColor="#ffffffff"
+				/>
+				
+		</LinearLayout>
+
+
+	</LinearLayout>
+
+
+</LinearLayout>	
+

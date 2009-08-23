@@ -372,6 +372,13 @@ public class RRDbAdapter {
 				"sum(total)" }, null, null, "taken_date", null, "taken_date");
 		return cursor;
 	}
+	
+	public Cursor queryMostExpensiveExpense() {
+		Cursor cursor = mDb.query(TABLE_RECEIPT, null,
+				"total = (select max(total) from receipt)",
+				null, null, null, null);
+		return cursor;
+	}
 
 	/**
 	 * The class maintains database and manages its version.

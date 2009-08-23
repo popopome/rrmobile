@@ -170,4 +170,8 @@ public class RRChartBarStreamView extends Gallery {
 	public void setBarHeight(int barHeight) {
 		mBarHeight = barHeight;
 	}
+	
+	public void refreshData() {
+		setChartBarDataProvider(mDataProvider);
+	}
 }

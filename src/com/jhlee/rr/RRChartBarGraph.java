@@ -40,6 +40,10 @@ public class RRChartBarGraph extends RelativeLayout {
 		mBarStreamView.setBarHeight(graphHeight);
 		requestLayout();
 	}
+	
+	public void refreshData() {
+		mBarStreamView.refreshData();
+	}
 
 	/*
 	 * Measure dimension

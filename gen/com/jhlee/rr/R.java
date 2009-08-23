@@ -59,11 +59,11 @@ public final class R {
         public static final int zoom_button_icon=0x7f020029;
     }
     public static final class id {
-        public static final int ButtonTakeShot=0x7f050026;
+        public static final int ButtonTakeShot=0x7f05002a;
         public static final int CapturedImageView=0x7f050001;
         public static final int LinearLayout01=0x7f050002;
         public static final int RRCaptured=0x7f050000;
-        public static final int RRTakeShot=0x7f050024;
+        public static final int RRTakeShot=0x7f050028;
         public static final int back_button=0x7f050008;
         public static final int bar_stream_view=0x7f050013;
         public static final int button_date_pick=0x7f05000a;
@@ -74,43 +74,49 @@ public final class R {
         public static final int carouselView=0x7f050007;
         public static final int chart_title=0x7f050011;
         public static final int chart_y_axis=0x7f050012;
-        public static final int command_title=0x7f050027;
-        public static final int date_view=0x7f05001b;
+        public static final int command_title=0x7f05002b;
+        public static final int date_view=0x7f05001f;
         public static final int delete_button=0x7f050003;
-        public static final int money_text=0x7f050016;
-        public static final int money_view=0x7f05001c;
+        public static final int img_view=0x7f050014;
+        public static final int item_tags=0x7f050016;
+        public static final int item_title=0x7f050015;
+        public static final int money_text=0x7f05001a;
+        public static final int money_view=0x7f050020;
         public static final int move_to_today=0x7f05000e;
-        public static final int numpad=0x7f050017;
-        public static final int receipt_detail_layout=0x7f050018;
+        public static final int numpad=0x7f05001b;
+        public static final int receipt_detail_layout=0x7f05001c;
         public static final int rotate_button=0x7f050005;
-        public static final int rr_cam_preview=0x7f050025;
-        public static final int rr_homescreen=0x7f050014;
+        public static final int rr_cam_preview=0x7f050029;
+        public static final int rr_empty_text=0x7f050017;
+        public static final int rr_homescreen=0x7f050018;
         public static final int rr_receipt_carousel_list=0x7f050006;
-        public static final int rr_zoombutton_view=0x7f05001a;
-        public static final int rr_zoomview=0x7f050019;
+        public static final int rr_zoombutton_view=0x7f05001e;
+        public static final int rr_zoomview=0x7f05001d;
         public static final int save_button=0x7f050004;
         public static final int select_button=0x7f05000f;
-        public static final int tag_add=0x7f050021;
+        public static final int tag_add=0x7f050025;
         public static final int tag_box=0x7f05000c;
-        public static final int tag_box_close=0x7f050022;
-        public static final int tag_box_title=0x7f05001e;
-        public static final int tag_commands=0x7f05001f;
-        public static final int tag_edit=0x7f050020;
-        public static final int tag_info_view=0x7f05001d;
-        public static final int tag_stream_view=0x7f050023;
-        public static final int topic_list=0x7f050015;
+        public static final int tag_box_close=0x7f050026;
+        public static final int tag_box_title=0x7f050022;
+        public static final int tag_commands=0x7f050023;
+        public static final int tag_edit=0x7f050024;
+        public static final int tag_info_view=0x7f050021;
+        public static final int tag_stream_view=0x7f050027;
+        public static final int topic_list=0x7f050019;
     }
     public static final class layout {
         public static final int rr_captured=0x7f030000;
         public static final int rr_carousel_receipt_list=0x7f030001;
         public static final int rr_celendar_select_dialog=0x7f030002;
         public static final int rr_chart_bar_graph=0x7f030003;
-        public static final int rr_homescreen=0x7f030004;
-        public static final int rr_money_input_dialog=0x7f030005;
-        public static final int rr_receipt_detail=0x7f030006;
-        public static final int rr_tagbox=0x7f030007;
-        public static final int rr_takeshot=0x7f030008;
-        public static final int rr_topic_item_command=0x7f030009;
+        public static final int rr_chart_expense_detail=0x7f030004;
+        public static final int rr_empty_data=0x7f030005;
+        public static final int rr_homescreen=0x7f030006;
+        public static final int rr_money_input_dialog=0x7f030007;
+        public static final int rr_receipt_detail=0x7f030008;
+        public static final int rr_tagbox=0x7f030009;
+        public static final int rr_takeshot=0x7f03000a;
+        public static final int rr_topic_item_command=0x7f03000b;
     }
     public static final class string {
         public static final int app_name=0x7f040001;
