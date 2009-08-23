@@ -15,13 +15,15 @@ import android.util.Log;
 
 public class RRDbAdapter {
 
-	private static final int DB_VERSION = 8;
+	private static final int DB_VERSION = 11;
 
 	/* KEYS for RECEIPT TABLE */
 	public static final String KEY_RECEIPT_IMG_FILE = "img_file";
 	public static final String KEY_RECEIPT_SMALL_IMG_FILE = "small_img_file";
 	public static final String KEY_RECEIPT_TAKEN_DATE = "taken_date";
-	public static final String KEY_RECEIPT_TAKEN_TIME = "taken_time";
+	public static final String KEY_RECEIPT_TAKEN_DATE_AS_STRING = "taken_date_as_string";
+	public static final String KEY_RECEIPT_TAKEN_DAY_OF_WEEK = "taken_day_of_week";
+	public static final String KEY_RECEIPT_TAKEN_DAY_OF_MONTH = "taken_day_of_month";
 	public static final String KEY_RECEIPT_TOTAL = "total";
 
 	/* KEYS for TAG SOURCE TABLE */
@@ -44,8 +46,10 @@ public class RRDbAdapter {
 			+ " _id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ " img_file TEXT NOT NULL,"
 			+ " small_img_file TEXT NOT NULL,"
-			+ " taken_date TEXT NOT NULL,"
-			+ " taken_time TEXT NOT NULL,"
+			+ " taken_date INTEGER NOT NULL,"
+			+ " taken_date_as_string TEXT NOT NULL,"
+			+ " taken_day_of_week INTEGER NOT NULL,"
+			+ " taken_day_of_month INTEGER NOT NULL,"
 			+ " geo_coding TEXT, "
 			+ " total INTEGER NOT NULL,"
 			+ " sync_id INTEGER);";
@@ -88,8 +92,13 @@ public class RRDbAdapter {
 		vals.put(KEY_RECEIPT_SMALL_IMG_FILE, smallImagePath);
 
 		/** Format current date/time */
-		vals.put(KEY_RECEIPT_TAKEN_DATE, RRUtil.getTodayDateString());
-		vals.put(KEY_RECEIPT_TAKEN_TIME, RRUtil.getCurrentTimeString());
+		Calendar today = new GregorianCalendar(new SimpleTimeZone(0, "GMT"));
+		long todayInMillis = today.getTimeInMillis();
+		/* Insert date information */
+		vals.put(KEY_RECEIPT_TAKEN_DATE, todayInMillis);
+		vals.put(KEY_RECEIPT_TAKEN_DATE_AS_STRING, RRUtil.formatGMTCalendar(todayInMillis));
+		vals.put(KEY_RECEIPT_TAKEN_DAY_OF_WEEK, today.get(Calendar.DAY_OF_WEEK));
+		vals.put(KEY_RECEIPT_TAKEN_DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
 
 		/**
 		 * Set total money as zero. 0 means N/A.
@@ -104,7 +113,7 @@ public class RRDbAdapter {
 		Cursor c = mDb.query(TABLE_RECEIPT, new String[] { "_id",
 				"COUNT(*) AS CNT", "SUM(TOTAL) AS TOTAL_EXPENSE",
 				KEY_RECEIPT_IMG_FILE, KEY_RECEIPT_TAKEN_DATE }, null, null,
-				KEY_RECEIPT_TAKEN_DATE, null, KEY_RECEIPT_TAKEN_DATE);
+				KEY_RECEIPT_TAKEN_DATE_AS_STRING, null, KEY_RECEIPT_TAKEN_DATE);
 		if (c != null)
 			c.moveToFirst();
 		return c;
@@ -133,7 +142,7 @@ public class RRDbAdapter {
 	 */
 	public Cursor queryAllReceipts() {
 		return mDb.query(TABLE_RECEIPT, null, null, null, null, null,
-				KEY_RECEIPT_TAKEN_DATE + "," + KEY_RECEIPT_TAKEN_TIME);
+				KEY_RECEIPT_TAKEN_DATE);
 	}
 
 	/**
@@ -165,13 +174,11 @@ public class RRDbAdapter {
 		tmpCalendar.clear();
 		tmpCalendar.setTimeInMillis(millis);
 
-		/* Date formatting */
-		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-		formatter.setTimeZone(tmpCalendar.getTimeZone());
-		String dateStr = formatter.format(tmpCalendar.getTime());
-
 		/* Insert date to DB */
-		vals.put(KEY_RECEIPT_TAKEN_DATE, dateStr);
+		vals.put(KEY_RECEIPT_TAKEN_DATE, tmpCalendar.getTimeInMillis());
+		vals.put(KEY_RECEIPT_TAKEN_DATE_AS_STRING, RRUtil.formatGMTCalendar(tmpCalendar.getTimeInMillis()));
+		vals.put(KEY_RECEIPT_TAKEN_DAY_OF_WEEK, tmpCalendar.get(Calendar.DAY_OF_WEEK));
+		vals.put(KEY_RECEIPT_TAKEN_DAY_OF_MONTH, tmpCalendar.get(Calendar.DAY_OF_MONTH));
 
 		/* Assume 0th index is id */
 		int rid = cursor.getInt(0);
@@ -369,7 +376,7 @@ public class RRDbAdapter {
 
 	public Cursor queryExpenseDayByDay() {
 		Cursor cursor = mDb.query(TABLE_RECEIPT, new String[] { "taken_date",
-				"sum(total)" }, null, null, "taken_date", null, "taken_date");
+				"sum(total)" }, null, null, KEY_RECEIPT_TAKEN_DATE_AS_STRING, null, KEY_RECEIPT_TAKEN_DATE);
 		return cursor;
 	}
 	
@@ -409,7 +416,7 @@ public class RRDbAdapter {
 					+ newVersion);
 			db.execSQL("DROP TABLE IF EXISTS receipt");
 			db.execSQL("DROP TABLE IF EXISTS marker");
-			db.execSQL("DROP TABLE IF EXISTS photo_tags");
+			db.execSQL("DROP TABLE IF EXISTS photo_tag");
 			db.execSQL("DROP TABLE IF EXISTS tag_source");
 
 			this.onCreate(db);

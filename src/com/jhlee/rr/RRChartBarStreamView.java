@@ -129,6 +129,15 @@ public class RRChartBarStreamView extends Gallery {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		
+		/* If data is empty,
+		 * then we do not show the graph
+		 */
+		if(mDataProvider == null || mDataProvider.getCount() == 0) {
+			setMeasuredDimension(getMeasuredWidth(), 0);
+			return;
+		}
+		
 		setMeasuredDimension(getMeasuredWidth(), mBarHeight);
 	}
 

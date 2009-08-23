@@ -3,6 +3,8 @@ package com.jhlee.rr;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -12,6 +14,9 @@ public class RRChartBarGraph extends RelativeLayout {
 
 	private RRChartYAxisView	mYAxisView;
 	private RRChartBarStreamView	mBarStreamView;
+	private TextView mEmptyView;
+	private TextView mTitleView;
+	private LinearLayout mGraphWrapper;
 	
 	public RRChartBarGraph(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -31,6 +36,9 @@ public class RRChartBarGraph extends RelativeLayout {
 		
 		mYAxisView = (RRChartYAxisView) findViewById(R.id.chart_y_axis);
 		mBarStreamView = (RRChartBarStreamView)findViewById(R.id.bar_stream_view);
+		mEmptyView = (TextView)findViewById(R.id.empty_view);
+		mTitleView = (TextView)findViewById(R.id.chart_title);
+		mGraphWrapper = (LinearLayout)findViewById(R.id.graph_wrapper);
 	}
 	
 	/*
@@ -87,6 +95,22 @@ public class RRChartBarGraph extends RelativeLayout {
 
 	public void setChartBarDataProvider(RRChartBarDataProvider dataProvider) {
 		mBarStreamView.setChartBarDataProvider(dataProvider);
+		
+		/*
+		 * Check if there is no data,
+		 * we only show empty data
+		 */
+		if(dataProvider.getCount() == 0) {
+			mGraphWrapper.setVisibility(View.GONE);
+			mTitleView.setVisibility(View.GONE);
+			mEmptyView.setVisibility(View.VISIBLE);
+		} else {
+			mGraphWrapper.setVisibility(View.VISIBLE);
+			mTitleView.setVisibility(View.VISIBLE);
+			mEmptyView.setVisibility(View.GONE);
+		}
+		
+		requestLayout();
 	}
 
 	/*
@@ -99,6 +123,11 @@ public class RRChartBarGraph extends RelativeLayout {
 	public void setGraphTitle(String graphTitle) {
 		TextView titleView = (TextView) findViewById(R.id.chart_title);
 		titleView.setText(graphTitle);
+		requestLayout();
+	}
+	
+	public void setEmptyText(String emptyText) {
+		mEmptyView.setText(emptyText);
 		requestLayout();
 	}
 	

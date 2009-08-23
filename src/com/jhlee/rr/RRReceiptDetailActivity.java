@@ -119,8 +119,10 @@ public class RRReceiptDetailActivity extends Activity {
 	 */
 	private void refreshDateView() {
 		TextView dateView = (TextView) findViewById(R.id.date_view);
-		dateView.setText(mCursor.getString(mCursor
+		
+		String dateString = RRUtil.formatCalendar(mCursor.getLong(mCursor
 				.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE)));
+		dateView.setText(dateString);
 		dateView.invalidate();
 	}
 
@@ -231,7 +233,9 @@ public class RRReceiptDetailActivity extends Activity {
 				});
 				
 				/* Get date information */
-				String dateStr = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+				String dateStr =
+					RRUtil.formatCalendar(mCursor.getLong(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE)));
+					
 				dlg.setActiveDate(dateStr);
 				
 				/* Show dialog */

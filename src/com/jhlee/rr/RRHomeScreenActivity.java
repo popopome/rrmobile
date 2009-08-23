@@ -24,10 +24,13 @@ public class RRHomeScreenActivity extends Activity {
 	public class RRDayByDayExpenseDataProvider implements RRChartBarDataProvider {
 		private static final int COL_DATE = 0;
 		private static final int COL_EXPENSE = 1;
+		/* Minimum expense $10 */
+		private static final long MINIMUM_MAX_EXPENSE = 1000;
 		private long mMaxExpense;
 		private Cursor mCursor;
 		public RRDayByDayExpenseDataProvider() {
-			mMaxExpense = mDbAdapter.getMaxExpense();
+			mMaxExpense = Math.max(MINIMUM_MAX_EXPENSE, mDbAdapter.getMaxExpense());
+			
 			mCursor = mDbAdapter.queryExpenseDayByDay();
 			RRHomeScreenActivity.this.startManagingCursor(mCursor);
 		}
@@ -49,7 +52,7 @@ public class RRHomeScreenActivity extends Activity {
 
 		public String getBarValueName(int position) {
 			mCursor.moveToPosition(position);
-			return mCursor.getString(COL_DATE);
+			return RRUtil.formatCalendar(mCursor.getLong(COL_DATE));
 		}
 
 		public int getCount() {
@@ -116,7 +119,10 @@ public class RRHomeScreenActivity extends Activity {
 				imgView.setImageBitmap(bmp);
 				
 				TextView mainInfoView = (TextView)view.findViewById(R.id.item_title);
-				String dateString = cursor.getString(cursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+				
+				long dateInMillis = cursor.getLong(cursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
+				String dateString = RRUtil.formatCalendar(dateInMillis);
+				
 				long expense = cursor.getLong(cursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TOTAL));
 				String expenseString = RRUtil.formatMoney(expense/100, expense%100, true);
 				mainInfoView.setText(dateString + "\n" + expenseString);
@@ -156,6 +162,7 @@ public class RRHomeScreenActivity extends Activity {
 	        graph.setTitleTextSize(20);
 	        graph.setXYAxisName("Date", "Money");
 	        graph.setGraphTitle("Day by day expense\nThe graph shows how you spend out money for each day");
+	        graph.setEmptyText("Day by day expense - N/A");
 	        graph.setBarMaxHeight(150);
 	        return graph;
 		}
