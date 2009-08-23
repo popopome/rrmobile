@@ -70,6 +70,7 @@ public final class R {
         public static final int calendar_stream_view=0x7f05000d;
         public static final int cancel_button=0x7f050010;
         public static final int carouselView=0x7f050007;
+        public static final int command_title=0x7f050024;
         public static final int date_view=0x7f050018;
         public static final int delete_button=0x7f050003;
         public static final int money_text=0x7f050013;
@@ -81,7 +82,6 @@ public final class R {
         public static final int rr_cam_preview=0x7f050022;
         public static final int rr_homescreen=0x7f050011;
         public static final int rr_receipt_carousel_list=0x7f050006;
-        public static final int rr_topiclist=0x7f050012;
         public static final int rr_zoombutton_view=0x7f050017;
         public static final int rr_zoomview=0x7f050016;
         public static final int save_button=0x7f050004;
@@ -94,6 +94,7 @@ public final class R {
         public static final int tag_edit=0x7f05001d;
         public static final int tag_info_view=0x7f05001a;
         public static final int tag_stream_view=0x7f050020;
+        public static final int topic_list=0x7f050012;
     }
     public static final class layout {
         public static final int rr_captured=0x7f030000;
@@ -104,6 +105,7 @@ public final class R {
         public static final int rr_receipt_detail=0x7f030005;
         public static final int rr_tagbox=0x7f030006;
         public static final int rr_takeshot=0x7f030007;
+        public static final int rr_topic_item_command=0x7f030008;
     }
     public static final class string {
         public static final int app_name=0x7f040001;
