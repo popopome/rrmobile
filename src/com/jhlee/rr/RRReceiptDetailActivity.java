@@ -29,6 +29,8 @@ public class RRReceiptDetailActivity extends Activity {
 	private int mRID;
 	
 	private float mZoomRatioAtDown;
+	
+	private RRTagDataProviderFromDb	mTagDataProvider;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +74,10 @@ public class RRReceiptDetailActivity extends Activity {
 
 		/* Set up money text view */
 		refreshMoneyViewText();
-
 		/* Set date */
 		refreshDateView();
+		/* Set tag info view */
+		refreshTagInfoView();
 
 		final RRReceiptDetailActivity self = this;
 
@@ -84,6 +87,9 @@ public class RRReceiptDetailActivity extends Activity {
 		initializeMoneyButton(self);
 		/* Initialize date pick button */
 		initializeDatePickButton(self);
+		/* Initialize tag box and tag button */
+		initializeTagBoxAndTagButton(self);
+		
 		
 		/* Connect zoom button view & zoom view */
 		final RRZoomButtonView zoomBtnView = (RRZoomButtonView)this.findViewById(R.id.rr_zoombutton_view);
@@ -234,5 +240,48 @@ public class RRReceiptDetailActivity extends Activity {
 		});
 	}
 	
-	
+	/*
+	 * Initialize tag box and tag button
+	 */
+	private void initializeTagBoxAndTagButton(final RRReceiptDetailActivity self) {
+		/* Set tag data provider */
+		final RRTagBox tagBox = (RRTagBox) self.findViewById(R.id.tag_box);
+		mTagDataProvider = new RRTagDataProviderFromDb(this,mDbAdapter);
+		tagBox.setTagProvider(mTagDataProvider);
+		tagBox.setOnTagItemStateChangeListener(new RRTagStreamView.OnTagItemStateChangeListener() {
+			/*
+			 * Let's update tag item status
+			 */
+			public void onTagItemStateChanged(String tag, boolean checked) {
+				RRReceiptDetailActivity.this.refreshTagInfoView();
+				
+			}
+		});
+		
+		
+		/* Initialize tag button */
+		Button tagButton = (Button)findViewById(R.id.button_tag);
+		tagButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				/* Show tag box */
+				RRTagBox tagBox = (RRTagBox) self.findViewById(R.id.tag_box);
+				tagBox.setVisibility(View.VISIBLE);
+				
+				mTagDataProvider.setActiveReceiptId(mRID);
+				
+				/* Refresh tag data */
+				tagBox.refreshTags();
+			}
+		});
+	}
+
+	/*
+	 * Refresh tag info view
+	 */
+	private void refreshTagInfoView() {
+		String tagStr = mDbAdapter.queryReceiptTagsAsMultiLineString(mRID);
+		TextView tagInfoView = (TextView)findViewById(R.id.tag_info_view);
+		tagInfoView.setText(tagStr);
+	}
 }
+

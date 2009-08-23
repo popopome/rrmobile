@@ -3,6 +3,7 @@ package com.jhlee.rr;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
+import junit.framework.Assert;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,20 +18,23 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Html.TagHandler;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.jhlee.rr.RRCarouselFlowView.RRCarouselActiveItemClickListener;
+import com.jhlee.rr.RRCarouselFlowView.OnCarouselActiveItemChanged;
+import com.jhlee.rr.RRCarouselFlowView.OnCarouselActiveItemClickListener;
+import com.jhlee.rr.RRCarouselFlowView.OnCarouselItemCustomDrawListener;
 import com.jhlee.rr.RRCarouselFlowView.RRCarouselItem;
-import com.jhlee.rr.RRCarouselFlowView.RRCarouselItemCustomDrawer;
 
 public class RRReceiptListActivity extends Activity implements
-		RRCarouselActiveItemClickListener {
+		OnCarouselActiveItemClickListener,
+		OnCarouselActiveItemChanged {
 	private static final String POSTFIX_REFLECTION_BMP = "@#$";
 	
-	private class ReceiptItemCustomDrawer implements RRCarouselItemCustomDrawer {
+	private class ReceiptItemCustomDrawer implements OnCarouselItemCustomDrawListener {
 		private static final int TEXT_SIZE = 20;
 		private Paint mPaint;
 		private Typeface mFont;
@@ -90,6 +94,15 @@ public class RRReceiptListActivity extends Activity implements
 			
 			/* Draw money & date 
 			 * */
+			drawReceiptInformation(canvas, item, isItemActive, y);
+		}
+		
+		/*
+		 * Draw receipt information
+		 */
+		private void drawReceiptInformation(Canvas canvas, RRCarouselItem item,
+				boolean isItemActive, int y) {
+			/* Draw money */
 			installShadow();
 			mCursor.moveToPosition(item.seq);
 			long total = mCursor.getLong(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TOTAL));
@@ -101,9 +114,18 @@ public class RRReceiptListActivity extends Activity implements
 			
 			/* Only active item represents date */
 			if(isItemActive) {
+				/* Draw date */
 				/* Format date */
 				String dateStr = mCursor.getString(mCursor.getColumnIndex(RRDbAdapter.KEY_RECEIPT_TAKEN_DATE));
 				canvas.drawText(dateStr, item.x, y+item.h+TEXT_SIZE+TEXT_SIZE, mPaint);
+				
+				/* Draw tag information */
+				int rid = mCursor.getInt(0);
+				String allTags = mAdapter.queryReceiptTagsAsOneString(rid);
+				if(allTags.length() > 0) {
+					/* There is tags */
+					canvas.drawText(allTags, item.x, y + item.h + TEXT_SIZE + TEXT_SIZE + TEXT_SIZE, mPaint);
+				}
 			}
 			uninstallShadow();
 		}
@@ -157,6 +179,7 @@ public class RRReceiptListActivity extends Activity implements
 	private HashMap<String, Bitmap> mBmpPool = new HashMap<String, Bitmap>();
 
 	private Matrix mMatrixZoomToFit = new Matrix();
+	private RRTagDataProviderFromDb	mTagDataProvider;
 
 	/**
 	 * Activity is created
@@ -196,33 +219,61 @@ public class RRReceiptListActivity extends Activity implements
 			return;
 		}
 		
-		
-		
-		
 		/* Initialize carousel view */
 		final RRCarouselFlowView carouselView = (RRCarouselFlowView) findViewById(R.id.carouselView);
 		carouselView.initialize(numOfReceipts, 120, 160, 60, 9, 25);
 		carouselView.setFocusable(true);
-		carouselView.setActiveItemClickListener(this);
+		carouselView.setOnActiveItemClickListener(this);
+		carouselView.setOnActiveItemChangeListener(this);
 
 		/* Set custom drawer */
-		carouselView.setCarouselItemCustomDrawer(new ReceiptItemCustomDrawer());
+		carouselView.setOnCarouselItemCustomDrawListener(new ReceiptItemCustomDrawer());
+		
+		
 		
 		
 		/* Install money input dialog listener */
 		initializeMoneyButtonHandler(self, carouselView);
 		
-		/*
-		 * Install date change button 
-		 */
+		/* Install date change button */
 		initializeDateChangeButton(self, carouselView);
 		
+		/* Initialize tag box and tag button */
+		initializeTagBoxAndTagButton(self);
 		
 		/* Give default focus to carousel view */
 		carouselView.requestFocus();
 
 	}
 
+	/*
+	 * Initialize tag box and tag button
+	 */
+	private void initializeTagBoxAndTagButton(final RRReceiptListActivity self) {
+		/* Set tag data provider */
+		final RRTagBox tagBox = (RRTagBox) self.findViewById(R.id.tag_box);
+		mTagDataProvider = new RRTagDataProviderFromDb(this,mAdapter);
+		tagBox.setTagProvider(mTagDataProvider);
+		
+		/* Initialize tag button */
+		Button tagButton = (Button)findViewById(R.id.button_tag);
+		tagButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				/* Show tag box */
+				RRTagBox tagBox = (RRTagBox) self.findViewById(R.id.tag_box);
+				tagBox.setVisibility(View.VISIBLE);
+				
+				/* Request layout */
+				self.findViewById(R.id.rr_receipt_carousel_list).requestLayout();
+				
+				mTagDataProvider.setActiveReceiptId(getActiveReceiptId());
+				
+				/* Refresh tag data */
+				tagBox.refreshTags();
+			}
+		});
+	}
+	
 	private void initializeDateChangeButton(final RRReceiptListActivity self,
 			final RRCarouselFlowView carouselView) {
 		Button datePickBtn = (Button)findViewById(R.id.button_date_pick);
@@ -362,6 +413,40 @@ public class RRReceiptListActivity extends Activity implements
 		i.putExtra(RRReceiptDetailActivity.RECEIPT_ID, rid);
 		this.startActivity(i);
 	}
-	
-	
+
+	/*
+	 * Get active receipt id
+	 */
+	private int getActiveReceiptId() {
+		RRCarouselFlowView view = (RRCarouselFlowView) this.findViewById(R.id.carouselView);
+		Assert.assertTrue(view != null);
+		
+		RRCarouselItem item = view.getActiveItem();
+		Assert.assertTrue(item != null);
+		
+		mCursor.moveToPosition(item.seq);
+		/* Assume 0 indicates id */
+		return mCursor.getInt(0);
+	}
+
+	/*
+	 * Active item is changed
+	 */
+	public void onActiveItemChanged(RRCarouselFlowView view, RRCarouselItem item) {
+		/* If tag view is opened,
+		 * let's refresh tag view
+		 */
+		RRTagBox tagBox = (RRTagBox) findViewById(R.id.tag_box);
+		if(tagBox.getVisibility() == View.VISIBLE) {
+			String activeTag = tagBox.getActiveTag();
+			
+			/* Set active tag */
+			mTagDataProvider.setActiveReceiptId(getActiveReceiptId());
+			tagBox.refreshTags();
+			
+			tagBox.scrollToTag(activeTag);
+		}
+	}
 }
+
+

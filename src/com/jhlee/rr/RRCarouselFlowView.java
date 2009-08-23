@@ -21,19 +21,24 @@ import android.view.View;
 
 public class RRCarouselFlowView extends View {
 
-	public abstract interface RRCarouselItemCustomDrawer {
+	public abstract interface OnCarouselItemCustomDrawListener {
 		public abstract void onDraw(android.view.View view, Canvas canvas,
 				RRCarouselItem item, boolean isItemActive);
 	}
 
-	public abstract interface RRCarouselActiveItemClickListener {
+	public abstract interface OnCarouselActiveItemClickListener {
 		public abstract void onClicked(RRCarouselFlowView view,
+				RRCarouselItem item);
+	}
+
+	public abstract interface OnCarouselActiveItemChanged {
+		public abstract void onActiveItemChanged(RRCarouselFlowView view,
 				RRCarouselItem item);
 	}
 
 	public class RRCarouselItem {
 		public int seq;
-		/** Not scaled into view coordinate */ 
+		/** Not scaled into view coordinate */
 		public int virtual_x;
 		public double scale;
 		/** All values below are scaled into view coordinates */
@@ -89,8 +94,9 @@ public class RRCarouselFlowView extends View {
 	private int mActiveSeqAtMouseDown;
 	private long mMouseDownMillis;
 
-	private RRCarouselActiveItemClickListener mActiveItemClickListener = null;
-	private RRCarouselItemCustomDrawer mCustomDrawer = null;
+	private OnCarouselActiveItemClickListener mOnActiveItemClickListener = null;
+	private OnCarouselItemCustomDrawListener mOnCustomDrawListener = null;
+	private OnCarouselActiveItemChanged mOnActiveItemChangeListener = null;
 
 	/** Animation handler */
 	private Handler mAnimationHandler = new Handler();
@@ -99,6 +105,12 @@ public class RRCarouselFlowView extends View {
 		public void run() {
 			int offset = (mTargetCamXPos - mCameraXPos) * 25 / 100;
 			if (offset == 0) {
+				/* Send item-changed notification */
+				if (mOnActiveItemChangeListener != null) {
+					mOnActiveItemChangeListener.onActiveItemChanged(
+							RRCarouselFlowView.this, RRCarouselFlowView.this
+									.getActiveItem());
+				}
 				return;
 			}
 			moveCameraRel(offset);
@@ -208,13 +220,18 @@ public class RRCarouselFlowView extends View {
 		this.moveCamera(0);
 	}
 
-	public void setActiveItemClickListener(
-			RRCarouselActiveItemClickListener activeItemClickListener) {
-		mActiveItemClickListener = activeItemClickListener;
+	public void setOnActiveItemClickListener(
+			OnCarouselActiveItemClickListener activeItemClickListener) {
+		mOnActiveItemClickListener = activeItemClickListener;
 	}
 
-	public void setItemDrawer(RRCarouselItemCustomDrawer drawer) {
-		mCustomDrawer = drawer;
+	public void setOnActiveItemChangeListener(
+			OnCarouselActiveItemChanged listener) {
+		mOnActiveItemChangeListener = listener;
+	}
+
+	public void setItemDrawer(OnCarouselItemCustomDrawListener drawer) {
+		mOnCustomDrawListener = drawer;
 	}
 
 	/**
@@ -322,9 +339,10 @@ public class RRCarouselFlowView extends View {
 		 * If there is custom drawer, then use it.
 		 */
 		RRCarouselItem activeItem = this.getActiveItem();
-		if (null != mCustomDrawer) {
+		if (null != mOnCustomDrawListener) {
 			for (RRCarouselItem item : mSortedItems) {
-				mCustomDrawer.onDraw(this, canvas, item, item == activeItem);
+				mOnCustomDrawListener.onDraw(this, canvas, item,
+						item == activeItem);
 			}
 			return;
 		}
@@ -438,8 +456,8 @@ public class RRCarouselFlowView extends View {
 				else {
 					if (item == getActiveItem()) {
 						/** Active item is clicked */
-						if (null != mActiveItemClickListener) {
-							mActiveItemClickListener.onClicked(this, item);
+						if (null != mOnActiveItemClickListener) {
+							mOnActiveItemClickListener.onClicked(this, item);
 							return true;
 						}
 					}
@@ -543,9 +561,9 @@ public class RRCarouselFlowView extends View {
 	 * 
 	 * @param customDrawer
 	 */
-	public void setCarouselItemCustomDrawer(
-			RRCarouselItemCustomDrawer customDrawer) {
-		mCustomDrawer = customDrawer;
+	public void setOnCarouselItemCustomDrawListener(
+			OnCarouselItemCustomDrawListener customDrawer) {
+		mOnCustomDrawListener = customDrawer;
 	}
 
 	private int adjustItemSeq(int seq) {
@@ -561,8 +579,8 @@ public class RRCarouselFlowView extends View {
 	 */
 	public void setActiveItem(int itemSeq) {
 		this.moveCamera(itemSeq * mItemWidth);
-		
-		int newSeq = mSortedItems.get(mSortedItems.size()-1).seq;
+
+		int newSeq = mSortedItems.get(mSortedItems.size() - 1).seq;
 		Assert.assertEquals(itemSeq, newSeq);
 	}
 }

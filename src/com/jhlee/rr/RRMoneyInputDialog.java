@@ -141,6 +141,9 @@ public class RRMoneyInputDialog extends Dialog {
 	}
 
 	public int getDollars() {
+		if(mMoneyString.length() == 0)
+			return 0;
+		
 		/* Do not use first $ */
 		return new Double(mMoneyString).intValue();
 	}

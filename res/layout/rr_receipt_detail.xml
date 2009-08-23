@@ -9,50 +9,38 @@
 		android:layout_alignParentLeft="true" android:layout_alignParentTop="true">
 	</com.jhlee.rr.RRZoomView>
 	<com.jhlee.rr.RRZoomButtonView
-		android:id="@+id/rr_zoombutton_view"
-		android:layout_width="wrap_content"
-		android:layout_height="fill_parent"
-		android:layout_alignParentRight="true"
-		/>
+		android:id="@+id/rr_zoombutton_view" android:layout_width="wrap_content"
+		android:layout_height="fill_parent" android:layout_alignParentRight="true" />
 	<Button android:id="@+id/back_button" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:background="@drawable/back_button_state"
 		android:layout_alignParentLeft="true">
 	</Button>
-	<TextView
-		android:id="@+id/date_view"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginRight="2px"
-		android:textSize="23.5sp"
-		android:textStyle="bold"
-		android:textColor="#ffffffff"
-		android:hint="Type money"
-		android:textColorHint="#ffffffff"
-		android:shadowRadius="2.0"
-		android:shadowColor="#ff000000"
-		android:layout_alignParentRight="true"
-		android:layout_alignParentTop ="true"
-		android:gravity="right"
-	/>
-	<TextView
-		android:id="@+id/money_view"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="0px"
-		android:layout_marginRight="2px"
-		android:textSize="23.5sp"
-		android:textStyle="bold"
-		android:textColor="#ffffffff"
-		android:hint="Type money"
-		android:textColorHint="#ffffffff"
-		android:shadowRadius="2.0"
-		android:shadowColor="#ff000000"
-		android:layout_alignParentRight="true"
-		android:layout_below = "@id/date_view"
-		android:gravity="right"
-		android:padding="0px"
-	/>
-	
+	<TextView android:id="@+id/date_view" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_marginRight="2px"
+		android:textSize="23.5sp" android:textStyle="bold" android:textColor="#ffffffff"
+		android:hint="Type money" android:textColorHint="#ffffffff"
+		android:shadowRadius="2.0" android:shadowColor="#ff000000"
+		android:layout_alignParentRight="true" android:layout_alignParentTop="true"
+		android:gravity="right" />
+	<TextView android:id="@+id/money_view" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_marginTop="0px"
+		android:layout_marginRight="2px" android:textSize="23.5sp"
+		android:textStyle="bold" android:textColor="#ffffffff" 
+		android:textColorHint="#ffffffff" android:shadowRadius="2.0"
+		android:shadowColor="#ff000000" android:layout_alignParentRight="true"
+		android:layout_below="@id/date_view" android:gravity="right"
+		android:padding="0px" />
+
+	<TextView android:id="@+id/tag_info_view"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_marginTop="0px" android:layout_marginRight="2px"
+		android:textSize="16.5sp" android:textStyle="bold" android:textColor="#ffffffff"
+		android:shadowRadius="2.0" android:shadowColor="#ff000000"
+		android:layout_alignParentRight="true" android:layout_below="@id/money_view"
+		android:gravity="right" android:padding="0px"
+		android:inputType="textMultiLine" 
+		/>
+
 	<Button android:layout_width="wrap_content" android:id="@+id/button_numpad"
 		android:layout_height="wrap_content" android:background="@drawable/numpad_button_state"
 		android:layout_alignParentRight="true"
@@ -61,6 +49,16 @@
 		android:layout_height="wrap_content" android:background="@drawable/date_change_button_state"
 		android:layout_toLeftOf="@id/button_numpad"
 		android:layout_alignParentBottom="true"></Button>
+
+	<Button android:id="@+id/button_tag" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:background="@drawable/tag_button_state"
+		android:layout_toLeftOf="@id/button_date_pick"
+
+		android:layout_alignParentBottom="true"></Button>
+
+	<com.jhlee.rr.RRTagBox android:id="@+id/tag_box"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:visibility="invisible" android:layout_alignParentBottom="true" />
 </RelativeLayout>
 
 
