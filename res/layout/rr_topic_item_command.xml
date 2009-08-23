@@ -8,12 +8,15 @@
 		android:layout_width = "fill_parent"
 		android:layout_height="fill_parent"
 		android:typeface="sans"
-		android:textSize="32.8sp"
+		android:textSize="26.8sp"
 		android:textColor="#ffffffff"
 		android:textColorHighlight="#ffffffff"
 		android:shadowColor="#ff000000"
 		android:shadowRadius="2.0"
 		android:textStyle="bold"
+		android:paddingLeft="3.5sp"
+		android:layout_marginTop="4.5sp"
+		android:layout_marginBottom="4.5sp"
 		/>
 </LinearLayout>
 

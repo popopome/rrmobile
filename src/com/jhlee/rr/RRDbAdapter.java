@@ -33,7 +33,6 @@ public class RRDbAdapter {
 	public static final String KEY_PHOTO_TAG_TAG = "tag_name";
 	public static final String KEY_PHOTO_TAG_RECEIPT_ID = "receipt_id";
 	public static final int COL_PHOTO_TAG_TAG = 1;
-	
 
 	private static final String DB_NAME = "RRDB";
 
@@ -68,10 +67,10 @@ public class RRDbAdapter {
 			+ "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ "tag_name TEXT NOT NULL" + ");";
 	private static final String TAG = "RRDbAdapter";
-	
+
 	private static final long TAG_STRING_FORMAT_MULTI_LINE = 1;
 	private static final long TAG_STRING_FORMAT_COMMA_SEP = 2;
-	
+
 	private DbHelper mDbHelper;
 	private SQLiteDatabase mDb;
 
@@ -190,11 +189,11 @@ public class RRDbAdapter {
 	}
 
 	/*
-	 * Query all tags from TAG SOURCE
-	 * Sort by tag name
+	 * Query all tags from TAG SOURCE Sort by tag name
 	 */
 	public Cursor queryAllTags() {
-		return mDb.query(TABLE_TAG_SOURCE, null, null, null, null, null, "tag_name");
+		return mDb.query(TABLE_TAG_SOURCE, null, null, null, null, null,
+				"tag_name");
 	}
 
 	/*
@@ -202,7 +201,7 @@ public class RRDbAdapter {
 	 */
 	public boolean createTag(String tagName) {
 		tagName = tagName.toLowerCase();
-		
+
 		/* Check duplication */
 		if (-1 != findTag(tagName)) {
 			Log.v(TAG, "Tag already exists:tagName=" + tagName);
@@ -220,7 +219,7 @@ public class RRDbAdapter {
 	 */
 	public long findTag(String tagName) {
 		tagName = tagName.toLowerCase();
-		
+
 		Cursor cursor = null;
 		try {
 			cursor = mDb.query(TABLE_TAG_SOURCE, null, "tag_name='" + tagName
@@ -248,7 +247,7 @@ public class RRDbAdapter {
 
 	public boolean addTagToReceipt(long receiptId, String tagName) {
 		tagName = tagName.toLowerCase();
-		
+
 		/* Check dup. */
 		if (true == doesReceiptHaveTag(receiptId, tagName))
 			return true;
@@ -271,7 +270,7 @@ public class RRDbAdapter {
 	 */
 	public boolean doesReceiptHaveTag(long receiptId, String tagName) {
 		tagName = tagName.toLowerCase();
-		
+
 		boolean bresult = true;
 		Cursor cursor = mDb.query(TABLE_PHOTO_TAG, null, "tag_name='" + tagName
 				+ "' and receipt_id=" + Long.toString(receiptId), null, null,
@@ -293,7 +292,7 @@ public class RRDbAdapter {
 	 */
 	public boolean removeTagFromReceipt(long receiptId, String tagName) {
 		tagName = tagName.toLowerCase();
-		
+
 		if (false == doesReceiptHaveTag(receiptId, tagName)) {
 			/* We have no item to delete */
 			Log.v(TAG, "No item is found within photo tag db:tagName="
@@ -314,43 +313,64 @@ public class RRDbAdapter {
 	public String queryReceiptTagsAsMultiLineString(long receiptId) {
 		return queryReceiptTagsAsString(receiptId, TAG_STRING_FORMAT_MULTI_LINE);
 	}
+
 	/*
 	 * Query receipt tags as one line string.
 	 */
 	public String queryReceiptTagsAsOneString(long receiptId) {
 		return queryReceiptTagsAsString(receiptId, TAG_STRING_FORMAT_COMMA_SEP);
 	}
-	
-	private String queryReceiptTagsAsString(long receiptId,
-										   long format) {
-		Cursor cursor = mDb.query(TABLE_PHOTO_TAG, null, "receipt_id=" + Long.toString(receiptId), 
-				null,null,null,"tag_name");
-		if(null == cursor)
+
+	private String queryReceiptTagsAsString(long receiptId, long format) {
+		Cursor cursor = mDb.query(TABLE_PHOTO_TAG, null, "receipt_id="
+				+ Long.toString(receiptId), null, null, null, "tag_name");
+		if (null == cursor)
 			return "";
-		
-		if(cursor.getCount() < 1) {
+
+		if (cursor.getCount() < 1) {
 			cursor.close();
 			return "";
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		cursor.moveToFirst();
-		while(cursor.isAfterLast() == false) {
+		while (cursor.isAfterLast() == false) {
 			sb.append(cursor.getString(COL_PHOTO_TAG_TAG));
-			if(false == cursor.isLast()) {
-				if(format == TAG_STRING_FORMAT_MULTI_LINE)
+			if (false == cursor.isLast()) {
+				if (format == TAG_STRING_FORMAT_MULTI_LINE)
 					sb.append("\n");
-				else if(format == TAG_STRING_FORMAT_COMMA_SEP)
+				else if (format == TAG_STRING_FORMAT_COMMA_SEP)
 					sb.append(",");
 			}
 			cursor.moveToNext();
 		}
-		
+
 		cursor.close();
 		cursor = null;
 		String tagStr = sb.toString();
 		sb = null;
 		return tagStr;
+	}
+
+	public long getMaxExpense() {
+		Cursor cursor = mDb.query(TABLE_RECEIPT, new String[] { "max(total)" },
+				null, null, null, null, null);
+		if (null == cursor)
+			return 0;
+		
+		long val = 0;
+		if (cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			val = cursor.getLong(0);
+		}
+		cursor.close();
+		return val;
+	}
+
+	public Cursor queryExpenseDayByDay() {
+		Cursor cursor = mDb.query(TABLE_RECEIPT, new String[] { "taken_date",
+				"sum(total)" }, null, null, "taken_date", null, "taken_date");
+		return cursor;
 	}
 
 	/**

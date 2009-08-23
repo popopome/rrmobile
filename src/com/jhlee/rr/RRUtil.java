@@ -17,15 +17,15 @@ public class RRUtil {
 		return formatter.format(new Date());
 	}
 
-	public static String formatMoney(int dollars, int cents, boolean useDollarSign) {
+	public static String formatMoney(long l, long m, boolean useDollarSign) {
 		StringBuilder sb = new StringBuilder();
 		if(useDollarSign)
 			sb.append("$");
-		sb.append(dollars);
+		sb.append(l);
 		sb.append(".");
-		if(cents < 10)
+		if(m < 10)
 			sb.append("0");
-		sb.append(cents);
+		sb.append(m);
 		return sb.toString();
 	}
 }
