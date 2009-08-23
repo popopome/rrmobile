@@ -14,9 +14,11 @@
 		android:layout_alignParentLeft="true">
 	</Button>
 
+<!-- 
 	<Button android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:background="@drawable/day_view_button_state"
 		android:layout_alignParentRight="true"></Button>
+		-->
 	<Button android:layout_width="wrap_content" android:id="@+id/button_numpad"
 		android:layout_height="wrap_content" android:background="@drawable/numpad_button_state"
 		android:layout_alignParentRight="true"
