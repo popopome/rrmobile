@@ -9,6 +9,7 @@ public class RRUtil {
 	public static SimpleDateFormat mGMTDataFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	static {
 		mGMTDataFormatter.setTimeZone(new SimpleTimeZone(0, "GMT"));
+		mDataFormatter.setTimeZone(new SimpleTimeZone(0, "GMT"));
 	}
 	public static String getTodayDateString() {
 		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
@@ -17,7 +18,7 @@ public class RRUtil {
 	}
 	
 	public static String getCurrentTimeString() {
-		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:s");
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 		return formatter.format(new Date());
 	}
 

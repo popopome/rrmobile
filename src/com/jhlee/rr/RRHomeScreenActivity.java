@@ -21,6 +21,54 @@ import com.jhlee.rr.RRChartBarStreamView.RRChartBarDataProvider;
 
 public class RRHomeScreenActivity extends Activity {
 
+	public class RRDayOfWeekExpenseDataProvider implements RRChartBarDataProvider {
+		private static final int COL_DAY_OF_WEEK = 0;
+		private static final int COL_TOTAL = 1;
+		private Cursor mCursor;
+		public RRDayOfWeekExpenseDataProvider() {
+			mCursor = mDbAdapter.queryExpenseDayOfWeek();
+			RRHomeScreenActivity.this.startManagingCursor(mCursor);
+		}
+		public long getBarMaxValue() {
+			mCursor.moveToFirst();
+			long maxValue = 0;
+			while(false == mCursor.isAfterLast()) {
+				maxValue = Math.max(maxValue, mCursor.getLong(COL_TOTAL));
+				mCursor.moveToNext();
+			}
+			return maxValue;
+		}
+
+		public String getBarTitle(int position) {
+			mCursor.moveToPosition(position);
+			long expense = mCursor.getLong(COL_TOTAL);
+			return RRUtil.formatMoney(expense/100, expense%100, true);
+		}
+
+		public long getBarValue(int position) {
+			mCursor.moveToPosition(position);
+			long expense = mCursor.getLong(COL_TOTAL);
+			return (long)expense;
+		}
+
+		public String getBarValueName(int position) {
+			mCursor.moveToPosition(position);
+			switch(mCursor.getInt(COL_DAY_OF_WEEK)) {
+			case 0:	return "SUN";
+			case 1: return "MON";
+			case 2: return "TUE";
+			case 3: return "WED";
+			case 4: return "THU";
+			case 5: return "FRI";
+			case 6: return "SAT";
+			}
+			return "N/A";
+		}
+
+		public int getCount() {
+			return mCursor.getCount();
+		}
+	}
 	public class RRDayByDayExpenseDataProvider implements RRChartBarDataProvider {
 		private static final int COL_DATE = 0;
 		private static final int COL_EXPENSE = 1;
@@ -29,9 +77,13 @@ public class RRHomeScreenActivity extends Activity {
 		private long mMaxExpense;
 		private Cursor mCursor;
 		public RRDayByDayExpenseDataProvider() {
-			mMaxExpense = Math.max(MINIMUM_MAX_EXPENSE, mDbAdapter.getMaxExpense());
+			mMaxExpense = Math.max(MINIMUM_MAX_EXPENSE, mDbAdapter.getMaxExpenseAmongEachDays());
 			
 			mCursor = mDbAdapter.queryExpenseDayByDay();
+			mCursor.moveToFirst();
+			while(mCursor.isAfterLast()) {
+				mCursor.moveToNext();
+			}
 			RRHomeScreenActivity.this.startManagingCursor(mCursor);
 		}
 		public long getBarMaxValue() {
@@ -67,7 +119,7 @@ public class RRHomeScreenActivity extends Activity {
 	private class TopicListAdapter extends BaseAdapter {
 
 		public int getCount() {
-			return 4;
+			return 5;
 		}
 
 		public Object getItem(int position) {
@@ -98,6 +150,8 @@ public class RRHomeScreenActivity extends Activity {
 			case 2:
 				return createDayByDayExpenseGraph();
 			case 3:
+				return createDayOfWeekExpenseGraph();
+			case 4:
 				/* What is most expensive item */
 			{
 				View view = createViewFromLayout(R.layout.rr_chart_expense_detail);
@@ -157,15 +211,34 @@ public class RRHomeScreenActivity extends Activity {
 		private View createDayByDayExpenseGraph() {
 			RRChartBarGraph graph = new RRChartBarGraph(RRHomeScreenActivity.this);
 			graph.setChartBarDataProvider(new RRDayByDayExpenseDataProvider());
-			graph.setBarWidth(80);
+			graph.setBarWidth(45);
 	        graph.setBarValueNameTextSize(9);
 	        graph.setTitleTextSize(20);
 	        graph.setXYAxisName("Date", "Money");
 	        graph.setGraphTitle("Day by day expense\nThe graph shows how you spend out money for each day");
 	        graph.setEmptyText("Day by day expense - N/A");
-	        graph.setBarMaxHeight(150);
+	        graph.setBarMaxHeight(100);
 	        return graph;
 		}
+		
+		/**
+		 * Create day-by-day expense graph
+		 * @return
+		 */
+		private View createDayOfWeekExpenseGraph() {
+			RRChartBarGraph graph = new RRChartBarGraph(RRHomeScreenActivity.this);
+			graph.setChartBarDataProvider(new RRDayOfWeekExpenseDataProvider());
+			graph.setBarWidth(45);
+	        graph.setBarValueNameTextSize(9);
+	        graph.setTitleTextSize(20);
+	        graph.setXYAxisName("DayOfWeek", "Money");
+	        graph.setGraphTitle("Day of week expense\nWhich day do you usually spend money?");
+	        graph.setEmptyText("Day of week expense - N/A");
+	        graph.setBarMaxHeight(100);
+	        return graph;
+		}
+		
+		
 	};
 
 	private TopicListAdapter mTopicAdapter = new TopicListAdapter();

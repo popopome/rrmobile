@@ -1,6 +1,5 @@
 package com.jhlee.rr;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
@@ -359,9 +358,9 @@ public class RRDbAdapter {
 		return tagStr;
 	}
 
-	public long getMaxExpense() {
-		Cursor cursor = mDb.query(TABLE_RECEIPT, new String[] { "max(total)" },
-				null, null, null, null, null);
+	public long getMaxExpenseAmongEachDays() {
+		Cursor cursor = mDb.query("(select max(total) as accum from receipt group by taken_date_as_string)", 
+				new String[]{"max(accum)"}, null, null, null, null, null, null);
 		if (null == cursor)
 			return 0;
 		
@@ -377,6 +376,11 @@ public class RRDbAdapter {
 	public Cursor queryExpenseDayByDay() {
 		Cursor cursor = mDb.query(TABLE_RECEIPT, new String[] { "taken_date",
 				"sum(total)" }, null, null, KEY_RECEIPT_TAKEN_DATE_AS_STRING, null, KEY_RECEIPT_TAKEN_DATE);
+		return cursor;
+	}
+	public Cursor queryExpenseDayOfWeek() {
+		Cursor cursor = mDb.query(TABLE_RECEIPT, new String[] { "taken_day_of_week",
+				"sum(total)" }, null, null, KEY_RECEIPT_TAKEN_DAY_OF_WEEK, null, KEY_RECEIPT_TAKEN_DAY_OF_WEEK);
 		return cursor;
 	}
 	

@@ -22,7 +22,7 @@
 		android:id="@+id/graph_wrapper" 
 		android:orientation="horizontal"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:minHeight="150px">
+		>
 		<com.jhlee.rr.RRChartYAxisView
 			android:id="@+id/chart_y_axis" android:layout_width="wrap_content"
 			android:layout_height="fill_parent" />

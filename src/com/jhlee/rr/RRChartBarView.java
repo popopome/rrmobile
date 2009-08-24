@@ -14,7 +14,7 @@ public class RRChartBarView extends View {
 	private static final int PADDING_BASELINE = 30;
 	private static final int DEFAULT_TEXT_SIZE = 17;
 	private static final float DEFAULT_LINE_STROKE_WIDTH = 1.5f;
-	
+
 	private int mBarFillColor = Color.LTGRAY;
 	private int mBarEdgeColor = Color.DKGRAY;
 	private int mBarTitleColor = Color.WHITE;
@@ -26,8 +26,8 @@ public class RRChartBarView extends View {
 	private long mValue;
 	private String mValueName;
 	private long mValueNameTextSize;
-	
-	private int mBarWidth = 1; 
+
+	private int mBarWidth = 1;
 
 	private Rect mBarRect = new Rect();
 
@@ -52,7 +52,8 @@ public class RRChartBarView extends View {
 		mPaint.setSubpixelText(true);
 	}
 
-	public void setData(String title, String valueName, long maxValue, long value) {
+	public void setData(String title, String valueName, long maxValue,
+			long value) {
 		mTitle = title;
 		mMaxValue = maxValue;
 		mValue = value;
@@ -74,33 +75,33 @@ public class RRChartBarView extends View {
 		p.setStrokeWidth(DEFAULT_LINE_STROKE_WIDTH);
 		p.setColor(mBarEdgeColor);
 		canvas.drawRect(mBarRect, p);
-		
+
 		/* Draw base line */
 		int vh = getHeight();
 		int vw = getWidth();
 		canvas.drawLine(0, mBarRect.bottom, vw, mBarRect.bottom, p);
-		
+
 		/* Draw text at above bar */
 		p.setTextSize(mTitleTextSize);
 		p.setColor(mBarTitleColor);
 		p.setStyle(Paint.Style.FILL_AND_STROKE);
 		p.setShadowLayer(2.0f, 0, 0, Color.BLACK);
 		p.setTextAlign(Paint.Align.CENTER);
-		
+
 		int titleYPos = mBarRect.top - 5;
-		if(titleYPos < mTitleTextSize) {
-			/* Too high.
-			 * So the title is hidden.
-			 * Let's adjust position 
+		if (titleYPos < mTitleTextSize) {
+			/*
+			 * Too high. So the title is hidden. Let's adjust position
 			 */
 			titleYPos = (int) (mTitleTextSize + 10);
 		}
-		canvas.drawText(mTitle, vw/2, titleYPos, p);
-		
+		canvas.drawText(mTitle, vw / 2, titleYPos, p);
+
 		/* Draw value name */
 		p.setTextSize(mValueNameTextSize);
-		canvas.drawText(mValueName, vw/2, mBarRect.bottom + 5 + mValueNameTextSize, p);
-		
+		canvas.drawText(mValueName, vw / 2, mBarRect.bottom + 5
+				+ mValueNameTextSize, p);
+
 		p.setShadowLayer(0.0f, 0, 0, Color.BLACK);
 	}
 
@@ -114,18 +115,30 @@ public class RRChartBarView extends View {
 			return;
 		}
 
+		int barX = w/2 - mBarWidth/2;
 		int stickMaxHeight = h - PADDING_BASELINE - PADDING_VERT;
 		int stickHeight = (int) (stickMaxHeight * mValue / mMaxValue);
-		mBarRect.set(PADDING_HORZ, h - PADDING_BASELINE - stickHeight, w - PADDING_HORZ, h - PADDING_BASELINE);
+		mBarRect.set(barX, h - PADDING_BASELINE - stickHeight, barX + mBarWidth
+				, h - PADDING_BASELINE);
 	}
-	
+
 	/*
 	 * Set bar width
 	 */
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		this.setMeasuredDimension(mBarWidth, getMeasuredHeight());
+
+		/*
+		 * Compute text string
+		 */
+		Rect valBounds = new Rect();
+		Paint p = mPaint;
+		p.getTextBounds(mTitle, 0, mTitle.length(), valBounds);
+		int w = Math.max(mBarWidth, valBounds.width() + PADDING_HORZ + PADDING_HORZ);
+
+		this.setMinimumWidth(w);
+		this.setMeasuredDimension(w, getMeasuredHeight());
 	}
 
 	/*
@@ -134,12 +147,15 @@ public class RRChartBarView extends View {
 	public void setBarWidth(int barWidth) {
 		mBarWidth = barWidth;
 	}
+
 	public void setBarValueNameTextSize(int textSize) {
 		mValueNameTextSize = textSize;
 	}
+
 	public void setTitleTextSize(int textSize) {
 		mTitleTextSize = textSize;
 	}
+
 	public void setBarColor(int barColor, int barEdgeColor) {
 		mBarFillColor = barColor;
 		mBarEdgeColor = barEdgeColor;

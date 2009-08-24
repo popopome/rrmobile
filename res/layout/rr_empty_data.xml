@@ -5,5 +5,8 @@
 	android:textSize="16.0sp" android:textStyle="bold" android:textColor="#ffffffff"
 	android:shadowColor="#ff000000" android:shadowRadius="2.0"
 	android:background="@drawable/bar_chart_title_gradient"
-	android:paddingLeft="4.5sp" android:inputType="textMultiLine" />
+	android:paddingLeft="4.5sp" android:inputType="textMultiLine"
+	>
+	</TextView>
+	
 		
